@@ -1,0 +1,60 @@
+================================================================================
+Freezing baseline experiment M0
+================================================================================
+{
+  "model_id": "M0",
+  "description": "Arc-Eager + Static Oracle + Sparse Features + Averaged Perceptron + Greedy Decoding",
+  "transition_system": "arc-eager",
+  "oracle": "static",
+  "features": "sparse handcrafted features",
+  "classifier": "averaged perceptron",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu"
+}
+
+Train sentences: 14450
+Dev sentences:   1476
+Test sentences:  416
+Train tokens:    354648
+Dev tokens:      35721
+Test tokens:     10017
+Labels:          56
+
+Training on 14450 sentences for 10 epochs
+Using 56 labels: ['acl', 'acl:relcl', 'advcl', 'advcl:cleft', 'advmod']...
+------------------------------------------------------------
+  Epoch 1: processed 2000/14450 sentences  Epoch 1: processed 4000/14450 sentences  Epoch 1: processed 6000/14450 sentences  Epoch 1: processed 8000/14450 sentences  Epoch 1: processed 10000/14450 sentences  Epoch 1: processed 12000/14450 sentences  Epoch 1: processed 14000/14450 sentences  Epoch 1: train accuracy = 86.28% (611966/709296) [786.3s]
+          dev UAS = 86.46%, LAS = 80.82%
+  Epoch 2: processed 2000/14450 sentences  Epoch 2: processed 4000/14450 sentences  Epoch 2: processed 6000/14450 sentences  Epoch 2: processed 8000/14450 sentences  Epoch 2: processed 10000/14450 sentences  Epoch 2: processed 12000/14450 sentences  Epoch 2: processed 14000/14450 sentences  Epoch 2: train accuracy = 89.80% (636942/709296) [1475.5s]
+          dev UAS = 86.84%, LAS = 81.48%
+  Epoch 3: processed 2000/14450 sentences  Epoch 3: processed 4000/14450 sentences  Epoch 3: processed 6000/14450 sentences  Epoch 3: processed 8000/14450 sentences  Epoch 3: processed 10000/14450 sentences  Epoch 3: processed 12000/14450 sentences  Epoch 3: processed 14000/14450 sentences  Epoch 3: train accuracy = 91.44% (648611/709296) [1218.3s]
+          dev UAS = 87.11%, LAS = 81.82%
+  Epoch 4: processed 2000/14450 sentences  Epoch 4: processed 4000/14450 sentences  Epoch 4: processed 6000/14450 sentences  Epoch 4: processed 8000/14450 sentences  Epoch 4: processed 10000/14450 sentences  Epoch 4: processed 12000/14450 sentences  Epoch 4: processed 14000/14450 sentences  Epoch 4: train accuracy = 92.58% (656684/709296) [1000.3s]
+          dev UAS = 87.06%, LAS = 81.87%
+  Epoch 5: processed 2000/14450 sentences  Epoch 5: processed 4000/14450 sentences  Epoch 5: processed 6000/14450 sentences  Epoch 5: processed 8000/14450 sentences  Epoch 5: processed 10000/14450 sentences  Epoch 5: processed 12000/14450 sentences  Epoch 5: processed 14000/14450 sentences  Epoch 5: train accuracy = 93.32% (661930/709296) [599.0s]
+          dev UAS = 87.11%, LAS = 81.87%
+  Epoch 6: processed 2000/14450 sentences  Epoch 6: processed 4000/14450 sentences  Epoch 6: processed 6000/14450 sentences  Epoch 6: processed 8000/14450 sentences  Epoch 6: processed 10000/14450 sentences  Epoch 6: processed 12000/14450 sentences  Epoch 6: processed 14000/14450 sentences  Epoch 6: train accuracy = 94.02% (666849/709296) [836.4s]
+          dev UAS = 87.08%, LAS = 81.83%
+  Epoch 7: processed 2000/14450 sentences  Epoch 7: processed 4000/14450 sentences  Epoch 7: processed 6000/14450 sentences  Epoch 7: processed 8000/14450 sentences  Epoch 7: processed 10000/14450 sentences  Epoch 7: processed 12000/14450 sentences  Epoch 7: processed 14000/14450 sentences  Epoch 7: train accuracy = 94.48% (670147/709296) [712.3s]
+          dev UAS = 87.02%, LAS = 81.79%
+  Epoch 8: processed 2000/14450 sentences  Epoch 8: processed 4000/14450 sentences  Epoch 8: processed 6000/14450 sentences  Epoch 8: processed 8000/14450 sentences  Epoch 8: processed 10000/14450 sentences  Epoch 8: processed 12000/14450 sentences  Epoch 8: processed 14000/14450 sentences  Epoch 8: train accuracy = 94.83% (672656/709296) [1141.3s]
+          dev UAS = 86.97%, LAS = 81.76%
+  Epoch 9: processed 2000/14450 sentences  Epoch 9: processed 4000/14450 sentences  Epoch 9: processed 6000/14450 sentences  Epoch 9: processed 8000/14450 sentences  Epoch 9: processed 10000/14450 sentences  Epoch 9: processed 12000/14450 sentences  Epoch 9: processed 14000/14450 sentences  Epoch 9: train accuracy = 95.16% (674949/709296) [1269.6s]
+          dev UAS = 86.88%, LAS = 81.71%
+  Epoch 10: processed 2000/14450 sentences  Epoch 10: processed 4000/14450 sentences  Epoch 10: processed 6000/14450 sentences  Epoch 10: processed 8000/14450 sentences  Epoch 10: processed 10000/14450 sentences  Epoch 10: processed 12000/14450 sentences  Epoch 10: processed 14000/14450 sentences  Epoch 10: train accuracy = 95.41% (676755/709296) [1258.2s]
+          dev UAS = 86.86%, LAS = 81.64%
+------------------------------------------------------------
+Averaging weights...
+Training complete!
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m0_arc_eager_static_sparse\model.pkl
+
+Final M0 results
+  Dev UAS/LAS:  86.86 / 81.64
+  Test UAS/LAS: 83.76 / 77.92
+  Training time: 11439.90s
+  Parsing time:  32.46s
+  Test throughput: 12.81 sent/s, 308.55 tok/s

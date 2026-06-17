@@ -1,0 +1,820 @@
+{
+  "dev": {
+    "uas": 91.55678732398309,
+    "las": 88.30939783320736,
+    "sentences": 1476,
+    "tokens": 35721
+  },
+  "test": {
+    "uas": 88.89887191773984,
+    "las": 85.1153039832285,
+    "sentences": 416,
+    "tokens": 10017
+  },
+  "train": {
+    "sentences": 13816,
+    "tokens": 332744
+  },
+  "efficiency": {
+    "training_time_seconds": 2275.034704685211,
+    "parsing_time_seconds": 11.545639038085938,
+    "test_sentences_per_second": 36.03092030053327,
+    "test_tokens_per_second": 867.6003092558695
+  },
+  "epoch_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.2364227850562183,
+      "train_accuracy": 92.19805616329671,
+      "correct_predictions": 613567,
+      "total_predictions": 665488,
+      "elapsed_seconds": 277.557733297348,
+      "dev_uas": 88.60894151899443,
+      "dev_las": 84.740068867053
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.15470312373434603,
+      "train_accuracy": 94.45098934916933,
+      "correct_predictions": 628560,
+      "total_predictions": 665488,
+      "elapsed_seconds": 142.32248425483704,
+      "dev_uas": 89.73432994597016,
+      "dev_las": 86.05022255815906
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.13396358624338212,
+      "train_accuracy": 95.09728199456639,
+      "correct_predictions": 632861,
+      "total_predictions": 665488,
+      "elapsed_seconds": 145.04741382598877,
+      "dev_uas": 90.30822205425379,
+      "dev_las": 86.75009098289522
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.11851934929853095,
+      "train_accuracy": 95.61735147741206,
+      "correct_predictions": 636322,
+      "total_predictions": 665488,
+      "elapsed_seconds": 186.1233310699463,
+      "dev_uas": 90.81492679376278,
+      "dev_las": 87.44715993393241
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.1062816671832396,
+      "train_accuracy": 96.0391472122713,
+      "correct_predictions": 639129,
+      "total_predictions": 665488,
+      "elapsed_seconds": 246.7001190185547,
+      "dev_uas": 91.24884521709919,
+      "dev_las": 87.80549256739732
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.09625545269203865,
+      "train_accuracy": 96.38761330031495,
+      "correct_predictions": 641448,
+      "total_predictions": 665488,
+      "elapsed_seconds": 173.33759021759033,
+      "dev_uas": 91.0668794266678,
+      "dev_las": 87.79989361999944
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.08742990341717581,
+      "train_accuracy": 96.70677758276634,
+      "correct_predictions": 643572,
+      "total_predictions": 665488,
+      "elapsed_seconds": 150.43925619125366,
+      "dev_uas": 91.19845469051818,
+      "dev_las": 87.95666414714034
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.07952102599666643,
+      "train_accuracy": 96.97815738225182,
+      "correct_predictions": 645378,
+      "total_predictions": 665488,
+      "elapsed_seconds": 159.90778350830078,
+      "dev_uas": 91.22085048010973,
+      "dev_las": 87.89227625206462
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.07314890176815537,
+      "train_accuracy": 97.23616353713365,
+      "correct_predictions": 647095,
+      "total_predictions": 665488,
+      "elapsed_seconds": 161.19976234436035,
+      "dev_uas": 91.46720416561686,
+      "dev_las": 88.27580414882003
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.06630918671528435,
+      "train_accuracy": 97.48620561152117,
+      "correct_predictions": 648759,
+      "total_predictions": 665488,
+      "elapsed_seconds": 163.43852376937866,
+      "dev_uas": 91.55678732398309,
+      "dev_las": 88.30939783320736
+    }
+  ],
+  "transition_distribution": {
+    "SHIFT": 332744,
+    "LEFT-ARC": 182153,
+    "RIGHT-ARC": 150591
+  },
+  "analysis": {
+    "las_by_label": [
+      {
+        "label": "det",
+        "support": 1459,
+        "correct": 1450,
+        "las": 99.38313913639479
+      },
+      {
+        "label": "case",
+        "support": 1309,
+        "correct": 1285,
+        "las": 98.16653934300993
+      },
+      {
+        "label": "punct",
+        "support": 1186,
+        "correct": 954,
+        "las": 80.43844856661046
+      },
+      {
+        "label": "nmod",
+        "support": 856,
+        "correct": 695,
+        "las": 81.19158878504673
+      },
+      {
+        "label": "nsubj",
+        "support": 519,
+        "correct": 427,
+        "las": 82.27360308285164
+      },
+      {
+        "label": "amod",
+        "support": 485,
+        "correct": 456,
+        "las": 94.02061855670104
+      },
+      {
+        "label": "advmod",
+        "support": 462,
+        "correct": 396,
+        "las": 85.71428571428571
+      },
+      {
+        "label": "root",
+        "support": 416,
+        "correct": 359,
+        "las": 86.29807692307692
+      },
+      {
+        "label": "obl:mod",
+        "support": 348,
+        "correct": 211,
+        "las": 60.632183908045974
+      },
+      {
+        "label": "obj",
+        "support": 344,
+        "correct": 286,
+        "las": 83.13953488372093
+      },
+      {
+        "label": "conj",
+        "support": 319,
+        "correct": 198,
+        "las": 62.06896551724138
+      },
+      {
+        "label": "cc",
+        "support": 256,
+        "correct": 235,
+        "las": 91.796875
+      },
+      {
+        "label": "mark",
+        "support": 244,
+        "correct": 228,
+        "las": 93.44262295081967
+      },
+      {
+        "label": "obl:arg",
+        "support": 187,
+        "correct": 136,
+        "las": 72.72727272727273
+      },
+      {
+        "label": "cop",
+        "support": 153,
+        "correct": 142,
+        "las": 92.81045751633987
+      },
+      {
+        "label": "aux:tense",
+        "support": 132,
+        "correct": 127,
+        "las": 96.21212121212122
+      },
+      {
+        "label": "flat:name",
+        "support": 122,
+        "correct": 111,
+        "las": 90.98360655737704
+      },
+      {
+        "label": "xcomp",
+        "support": 115,
+        "correct": 93,
+        "las": 80.8695652173913
+      },
+      {
+        "label": "appos",
+        "support": 112,
+        "correct": 62,
+        "las": 55.357142857142854
+      },
+      {
+        "label": "nummod",
+        "support": 110,
+        "correct": 106,
+        "las": 96.36363636363636
+      },
+      {
+        "label": "advcl",
+        "support": 109,
+        "correct": 61,
+        "las": 55.96330275229358
+      },
+      {
+        "label": "acl",
+        "support": 107,
+        "correct": 65,
+        "las": 60.74766355140187
+      },
+      {
+        "label": "fixed",
+        "support": 105,
+        "correct": 68,
+        "las": 64.76190476190476
+      },
+      {
+        "label": "acl:relcl",
+        "support": 70,
+        "correct": 43,
+        "las": 61.42857142857143
+      },
+      {
+        "label": "nsubj:pass",
+        "support": 65,
+        "correct": 55,
+        "las": 84.61538461538461
+      },
+      {
+        "label": "aux:pass",
+        "support": 62,
+        "correct": 59,
+        "las": 95.16129032258064
+      },
+      {
+        "label": "ccomp",
+        "support": 55,
+        "correct": 37,
+        "las": 67.27272727272727
+      },
+      {
+        "label": "expl:subj",
+        "support": 46,
+        "correct": 36,
+        "las": 78.26086956521739
+      },
+      {
+        "label": "parataxis",
+        "support": 37,
+        "correct": 9,
+        "las": 24.324324324324323
+      },
+      {
+        "label": "obl:agent",
+        "support": 33,
+        "correct": 27,
+        "las": 81.81818181818181
+      },
+      {
+        "label": "iobj",
+        "support": 32,
+        "correct": 27,
+        "las": 84.375
+      },
+      {
+        "label": "expl:pv",
+        "support": 29,
+        "correct": 17,
+        "las": 58.62068965517241
+      },
+      {
+        "label": "obj:lvc",
+        "support": 17,
+        "correct": 11,
+        "las": 64.70588235294117
+      },
+      {
+        "label": "parataxis:insert",
+        "support": 13,
+        "correct": 3,
+        "las": 23.076923076923077
+      },
+      {
+        "label": "expl:comp",
+        "support": 13,
+        "correct": 11,
+        "las": 84.61538461538461
+      },
+      {
+        "label": "aux:caus",
+        "support": 12,
+        "correct": 12,
+        "las": 100.0
+      },
+      {
+        "label": "orphan",
+        "support": 11,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "csubj",
+        "support": 10,
+        "correct": 4,
+        "las": 40.0
+      },
+      {
+        "label": "expl:pass",
+        "support": 10,
+        "correct": 5,
+        "las": 50.0
+      },
+      {
+        "label": "advcl:cleft",
+        "support": 8,
+        "correct": 4,
+        "las": 50.0
+      },
+      {
+        "label": "dislocated",
+        "support": 8,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "obj:agent",
+        "support": 7,
+        "correct": 2,
+        "las": 28.571428571428573
+      },
+      {
+        "label": "discourse",
+        "support": 7,
+        "correct": 3,
+        "las": 42.857142857142854
+      },
+      {
+        "label": "nsubj:caus",
+        "support": 4,
+        "correct": 4,
+        "las": 100.0
+      },
+      {
+        "label": "flat:foreign",
+        "support": 3,
+        "correct": 3,
+        "las": 100.0
+      },
+      {
+        "label": "csubj:pass",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "goeswith",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "flat",
+        "support": 2,
+        "correct": 2,
+        "las": 100.0
+      },
+      {
+        "label": "iobj:agent",
+        "support": 2,
+        "correct": 1,
+        "las": 50.0
+      },
+      {
+        "label": "nsubj:outer",
+        "support": 1,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "obl",
+        "support": 1,
+        "correct": 0,
+        "las": 0.0
+      }
+    ],
+    "scores_by_sentence_length": [
+      {
+        "bucket": "1-10",
+        "sentences": 57,
+        "tokens": 429,
+        "uas": 93.24009324009324,
+        "las": 88.81118881118881
+      },
+      {
+        "bucket": "11-20",
+        "sentences": 132,
+        "tokens": 2019,
+        "uas": 90.44081228330857,
+        "las": 86.97374938088163
+      },
+      {
+        "bucket": "21-30",
+        "sentences": 116,
+        "tokens": 2891,
+        "uas": 89.83050847457628,
+        "las": 85.29920442753372
+      },
+      {
+        "bucket": "31-40",
+        "sentences": 68,
+        "tokens": 2354,
+        "uas": 89.67714528462191,
+        "las": 86.15123194562447
+      },
+      {
+        "bucket": "41+",
+        "sentences": 43,
+        "tokens": 2324,
+        "uas": 84.81067125645438,
+        "las": 81.54044750430293
+      }
+    ],
+    "root_accuracy": {
+      "correct": 359,
+      "total": 416,
+      "accuracy": 86.29807692307692
+    },
+    "label_confusion_matrix": {
+      "labels": [
+        "det",
+        "case",
+        "punct",
+        "nmod",
+        "nsubj",
+        "amod",
+        "advmod",
+        "root",
+        "obl:mod",
+        "obj",
+        "conj",
+        "cc"
+      ],
+      "matrix": [
+        [
+          1452,
+          4,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          1291,
+          0,
+          0,
+          0,
+          0,
+          7,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          1185,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          738,
+          1,
+          0,
+          1,
+          3,
+          32,
+          3,
+          14,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          443,
+          0,
+          0,
+          8,
+          2,
+          14,
+          9,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          0,
+          473,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0
+        ],
+        [
+          0,
+          11,
+          0,
+          2,
+          0,
+          0,
+          433,
+          2,
+          0,
+          5,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          4,
+          1,
+          2,
+          359,
+          3,
+          2,
+          8,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          37,
+          2,
+          0,
+          1,
+          4,
+          224,
+          5,
+          12,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          5,
+          0,
+          1,
+          0,
+          11,
+          289,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          3,
+          1,
+          5,
+          2,
+          4,
+          4,
+          0,
+          270,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          252
+        ]
+      ],
+      "support": {
+        "det": 1459,
+        "case": 1309,
+        "punct": 1186,
+        "nmod": 856,
+        "nsubj": 519,
+        "amod": 485,
+        "advmod": 462,
+        "root": 416,
+        "obl:mod": 348,
+        "obj": 344,
+        "conj": 319,
+        "cc": 256
+      }
+    },
+    "malformed_parse_stats_before_repair": {
+      "total_sentences": 416,
+      "zero_root_sentences_before_repair": 0,
+      "multi_root_sentences_before_repair": 0,
+      "unattached_sentences_before_repair": 0,
+      "malformed_sentences_before_repair": 0,
+      "repaired_sentences": 0,
+      "correct_root_sentences_before_repair": 359,
+      "correct_root_sentences_after_repair": 359
+    },
+    "parse_detail_sample": [
+      {
+        "terminal_reached": true,
+        "num_steps": 58,
+        "num_arcs": 29,
+        "pre_repair_root_ids": [
+          2
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          2
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 32,
+        "num_arcs": 16,
+        "pre_repair_root_ids": [
+          2
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          2
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 120,
+        "num_arcs": 60,
+        "pre_repair_root_ids": [
+          6
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          6
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 84,
+        "num_arcs": 42,
+        "pre_repair_root_ids": [
+          1
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          1
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 76,
+        "num_arcs": 38,
+        "pre_repair_root_ids": [
+          18
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          18
+        ],
+        "post_repair_root_count": 1
+      }
+    ]
+  },
+  "model_id": "M2b",
+  "description": "Arc-Standard + Static Oracle + FastText Word Embeddings + POS Embeddings + Dependency Label Embeddings + MLP + Greedy Decoding",
+  "transition_system": "arc-standard",
+  "oracle": "static",
+  "features": "dense rich embeddings",
+  "feature_set_description": "Word embeddings for s0/s1/s2/b0/b1/b2 and selected children, POS embeddings for the same token positions, dependency-label embeddings for child arcs, plus distance/stack/buffer structural buckets and NULL/ROOT indicators",
+  "classifier": "mlp",
+  "decoder": "greedy",
+  "epochs": 10,
+  "selected_epoch": 10,
+  "seed": 0,
+  "train_sentences_original": 14450,
+  "train_sentences_kept": 13816,
+  "train_sentences_filtered": 634,
+  "generated_transition_examples": 665488,
+  "train_tokens": 332744,
+  "dev_sentences": 1476,
+  "test_sentences": 416,
+  "dev_tokens": 35721,
+  "test_tokens": 10017,
+  "dev_uas": 91.56,
+  "dev_las": 88.31,
+  "test_uas": 88.9,
+  "test_las": 85.12,
+  "training_time_seconds": 2275.034704685211,
+  "parsing_time_seconds": 11.545639038085938,
+  "embedding": {
+    "source": "fasttext_bin",
+    "path": "data/embeddings/cc.fr.300.bin",
+    "embedding_dim": 300,
+    "oov_strategy": "fasttext_subword_vector",
+    "seed": 0
+  },
+  "pos_vocab_size": 19,
+  "label_vocab_size": 57,
+  "paths": {
+    "train_path": "data/fr_gsd-ud-train.conllu",
+    "dev_path": "data/fr_gsd-ud-dev.conllu",
+    "test_path": "data/fr_gsd-ud-test.conllu",
+    "output_dir": "experiments/m2b_arc_standard_dense_rich"
+  },
+  "selection_metric": {
+    "primary": "dev_las",
+    "tie_breaker": "dev_uas"
+  }
+}

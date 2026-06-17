@@ -1,0 +1,159 @@
+================================================================================
+Running M3 Arc-Standard contextual-rich experiment
+================================================================================
+{
+  "model_id": "M3",
+  "description": "Arc-Standard + Static Oracle + CamemBERT Contextual Embeddings + POS Embeddings + Dependency Label Embeddings + MLP + Greedy Decoding",
+  "transition_system": "arc-standard",
+  "oracle": "static",
+  "features": "contextual rich embeddings",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu",
+  "output_dir": "experiments/m3_arc_standard_contextual_rich",
+  "contextual": {
+    "model_name": "camembert-base",
+    "pooling": "average",
+    "frozen": true,
+    "use_gpu_if_available": true,
+    "local_files_only": true
+  },
+  "classifier": {
+    "type": "mlp",
+    "pos_embedding_dim": 32,
+    "label_embedding_dim": 32,
+    "hidden_dim": 512,
+    "dropout": 0.2
+  },
+  "training": {
+    "batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "AdamW",
+    "loss": "CrossEntropyLoss",
+    "use_gpu_if_available": true
+  }
+}
+
+Train sentences kept for M3: 13816 / 14450
+Dev sentences:   1476
+Test sentences:  416
+Train tokens:    332744
+Dev tokens:      35721
+Test tokens:     10017
+Labels:          56
+POS vocab:       19
+Label vocab:     57
+Contextual model:camembert-base
+Hidden size:     768
+Pooling:         average
+Device:          cpu
+
+Precomputing CamemBERT embeddings for train: 13816 sentences
+  train: cached 250/13816 sentences [41.8s]
+  train: cached 500/13816 sentences [107.3s]
+  train: cached 750/13816 sentences [153.9s]
+  train: cached 1000/13816 sentences [220.3s]
+  train: cached 1250/13816 sentences [249.8s]
+  train: cached 1500/13816 sentences [322.6s]
+  train: cached 1750/13816 sentences [380.0s]
+  train: cached 2000/13816 sentences [521.3s]
+  train: cached 2250/13816 sentences [683.2s]
+  train: cached 2500/13816 sentences [827.8s]
+  train: cached 2750/13816 sentences [972.1s]
+  train: cached 3000/13816 sentences [1129.2s]
+  train: cached 3250/13816 sentences [1284.7s]
+  train: cached 3500/13816 sentences [1415.7s]
+  train: cached 3750/13816 sentences [1568.8s]
+  train: cached 4000/13816 sentences [1707.8s]
+  train: cached 4250/13816 sentences [1858.6s]
+  train: cached 4500/13816 sentences [2004.8s]
+  train: cached 4750/13816 sentences [2159.5s]
+  train: cached 5000/13816 sentences [2310.8s]
+  train: cached 5250/13816 sentences [2353.7s]
+  train: cached 5500/13816 sentences [2383.1s]
+  train: cached 5750/13816 sentences [2412.5s]
+  train: cached 6000/13816 sentences [2443.0s]
+  train: cached 6250/13816 sentences [2564.4s]
+  train: cached 6500/13816 sentences [2719.5s]
+  train: cached 6750/13816 sentences [2771.3s]
+  train: cached 7000/13816 sentences [2801.0s]
+  train: cached 7250/13816 sentences [2830.8s]
+  train: cached 7500/13816 sentences [2859.0s]
+  train: cached 7750/13816 sentences [2888.0s]
+  train: cached 8000/13816 sentences [2918.1s]
+  train: cached 8250/13816 sentences [2948.0s]
+  train: cached 8500/13816 sentences [2977.1s]
+  train: cached 8750/13816 sentences [3005.7s]
+  train: cached 9000/13816 sentences [3035.7s]
+  train: cached 9250/13816 sentences [3065.1s]
+  train: cached 9500/13816 sentences [3096.9s]
+  train: cached 9750/13816 sentences [3126.4s]
+  train: cached 10000/13816 sentences [3155.5s]
+  train: cached 10250/13816 sentences [3185.5s]
+  train: cached 10500/13816 sentences [3213.8s]
+  train: cached 10750/13816 sentences [3242.6s]
+  train: cached 11000/13816 sentences [3273.8s]
+  train: cached 11250/13816 sentences [3303.2s]
+  train: cached 11500/13816 sentences [3331.1s]
+  train: cached 11750/13816 sentences [3360.3s]
+  train: cached 12000/13816 sentences [3388.8s]
+  train: cached 12250/13816 sentences [3501.3s]
+  train: cached 12500/13816 sentences [3664.8s]
+  train: cached 12750/13816 sentences [3804.4s]
+  train: cached 13000/13816 sentences [3972.1s]
+  train: cached 13250/13816 sentences [4127.5s]
+  train: cached 13500/13816 sentences [4282.7s]
+  train: cached 13750/13816 sentences [4442.7s]
+  train: cached 13816/13816 sentences [4483.4s]
+Precomputing CamemBERT embeddings for dev: 1476 sentences
+  dev: cached 250/1476 sentences [160.2s]
+  dev: cached 500/1476 sentences [213.8s]
+  dev: cached 750/1476 sentences [363.5s]
+  dev: cached 1000/1476 sentences [494.9s]
+  dev: cached 1250/1476 sentences [651.1s]
+  dev: cached 1476/1476 sentences [798.7s]
+Precomputing CamemBERT embeddings for test: 416 sentences
+  test: cached 250/416 sentences [157.2s]
+  test: cached 416/416 sentences [257.0s]
+
+  Epoch 1: processed 12800/665488 examples  Epoch 1: processed 25600/665488 examples  Epoch 1: processed 38400/665488 examples  Epoch 1: processed 51200/665488 examples  Epoch 1: processed 64000/665488 examples  Epoch 1: processed 76800/665488 examples  Epoch 1: processed 89600/665488 examples  Epoch 1: processed 102400/665488 examples  Epoch 1: processed 115200/665488 examples  Epoch 1: processed 128000/665488 examples  Epoch 1: processed 140800/665488 examples  Epoch 1: processed 153600/665488 examples  Epoch 1: processed 166400/665488 examples  Epoch 1: processed 179200/665488 examples  Epoch 1: processed 192000/665488 examples  Epoch 1: processed 204800/665488 examples  Epoch 1: processed 217600/665488 examples  Epoch 1: processed 230400/665488 examples  Epoch 1: processed 243200/665488 examples  Epoch 1: processed 256000/665488 examples  Epoch 1: processed 268800/665488 examples  Epoch 1: processed 281600/665488 examples  Epoch 1: processed 294400/665488 examples  Epoch 1: processed 307200/665488 examples  Epoch 1: processed 320000/665488 examples  Epoch 1: processed 332800/665488 examples  Epoch 1: processed 345600/665488 examples  Epoch 1: processed 358400/665488 examples  Epoch 1: processed 371200/665488 examples  Epoch 1: processed 384000/665488 examples  Epoch 1: processed 396800/665488 examples  Epoch 1: processed 409600/665488 examples  Epoch 1: processed 422400/665488 examples  Epoch 1: processed 435200/665488 examples  Epoch 1: processed 448000/665488 examples  Epoch 1: processed 460800/665488 examples  Epoch 1: processed 473600/665488 examples  Epoch 1: processed 486400/665488 examples  Epoch 1: processed 499200/665488 examples  Epoch 1: processed 512000/665488 examples  Epoch 1: processed 524800/665488 examples  Epoch 1: processed 537600/665488 examples  Epoch 1: processed 550400/665488 examples  Epoch 1: processed 563200/665488 examples  Epoch 1: processed 576000/665488 examples  Epoch 1: processed 588800/665488 examples  Epoch 1: processed 601600/665488 examples  Epoch 1: processed 614400/665488 examples  Epoch 1: processed 627200/665488 examples  Epoch 1: processed 640000/665488 examples  Epoch 1: processed 652800/665488 examples  Epoch 1: processed 665488/665488 examples  Epoch 1: train loss = 0.1707, train accuracy = 94.54% [793.4s]
+          dev UAS = 93.77%, LAS = 91.02%
+Model saved to experiments/m3_arc_standard_contextual_rich/checkpoints/best_model.pt
+  Epoch 2: processed 12800/665488 examples  Epoch 2: processed 25600/665488 examples  Epoch 2: processed 38400/665488 examples  Epoch 2: processed 51200/665488 examples  Epoch 2: processed 64000/665488 examples  Epoch 2: processed 76800/665488 examples  Epoch 2: processed 89600/665488 examples  Epoch 2: processed 102400/665488 examples  Epoch 2: processed 115200/665488 examples  Epoch 2: processed 128000/665488 examples  Epoch 2: processed 140800/665488 examples  Epoch 2: processed 153600/665488 examples  Epoch 2: processed 166400/665488 examples  Epoch 2: processed 179200/665488 examples  Epoch 2: processed 192000/665488 examples  Epoch 2: processed 204800/665488 examples  Epoch 2: processed 217600/665488 examples  Epoch 2: processed 230400/665488 examples  Epoch 2: processed 243200/665488 examples  Epoch 2: processed 256000/665488 examples  Epoch 2: processed 268800/665488 examples  Epoch 2: processed 281600/665488 examples  Epoch 2: processed 294400/665488 examples  Epoch 2: processed 307200/665488 examples  Epoch 2: processed 320000/665488 examples  Epoch 2: processed 332800/665488 examples  Epoch 2: processed 345600/665488 examples  Epoch 2: processed 358400/665488 examples  Epoch 2: processed 371200/665488 examples  Epoch 2: processed 384000/665488 examples  Epoch 2: processed 396800/665488 examples  Epoch 2: processed 409600/665488 examples  Epoch 2: processed 422400/665488 examples  Epoch 2: processed 435200/665488 examples  Epoch 2: processed 448000/665488 examples  Epoch 2: processed 460800/665488 examples  Epoch 2: processed 473600/665488 examples  Epoch 2: processed 486400/665488 examples  Epoch 2: processed 499200/665488 examples  Epoch 2: processed 512000/665488 examples  Epoch 2: processed 524800/665488 examples  Epoch 2: processed 537600/665488 examples  Epoch 2: processed 550400/665488 examples  Epoch 2: processed 563200/665488 examples  Epoch 2: processed 576000/665488 examples  Epoch 2: processed 588800/665488 examples  Epoch 2: processed 601600/665488 examples  Epoch 2: processed 614400/665488 examples  Epoch 2: processed 627200/665488 examples  Epoch 2: processed 640000/665488 examples  Epoch 2: processed 652800/665488 examples  Epoch 2: processed 665488/665488 examples  Epoch 2: train loss = 0.0956, train accuracy = 96.74% [567.1s]
+          dev UAS = 94.29%, LAS = 91.68%
+Model saved to experiments/m3_arc_standard_contextual_rich/checkpoints/best_model.pt
+  Epoch 3: processed 12800/665488 examples  Epoch 3: processed 25600/665488 examples  Epoch 3: processed 38400/665488 examples  Epoch 3: processed 51200/665488 examples  Epoch 3: processed 64000/665488 examples  Epoch 3: processed 76800/665488 examples  Epoch 3: processed 89600/665488 examples  Epoch 3: processed 102400/665488 examples  Epoch 3: processed 115200/665488 examples  Epoch 3: processed 128000/665488 examples  Epoch 3: processed 140800/665488 examples  Epoch 3: processed 153600/665488 examples  Epoch 3: processed 166400/665488 examples  Epoch 3: processed 179200/665488 examples  Epoch 3: processed 192000/665488 examples  Epoch 3: processed 204800/665488 examples  Epoch 3: processed 217600/665488 examples  Epoch 3: processed 230400/665488 examples  Epoch 3: processed 243200/665488 examples  Epoch 3: processed 256000/665488 examples  Epoch 3: processed 268800/665488 examples  Epoch 3: processed 281600/665488 examples  Epoch 3: processed 294400/665488 examples  Epoch 3: processed 307200/665488 examples  Epoch 3: processed 320000/665488 examples  Epoch 3: processed 332800/665488 examples  Epoch 3: processed 345600/665488 examples  Epoch 3: processed 358400/665488 examples  Epoch 3: processed 371200/665488 examples  Epoch 3: processed 384000/665488 examples  Epoch 3: processed 396800/665488 examples  Epoch 3: processed 409600/665488 examples  Epoch 3: processed 422400/665488 examples  Epoch 3: processed 435200/665488 examples  Epoch 3: processed 448000/665488 examples  Epoch 3: processed 460800/665488 examples  Epoch 3: processed 473600/665488 examples  Epoch 3: processed 486400/665488 examples  Epoch 3: processed 499200/665488 examples  Epoch 3: processed 512000/665488 examples  Epoch 3: processed 524800/665488 examples  Epoch 3: processed 537600/665488 examples  Epoch 3: processed 550400/665488 examples  Epoch 3: processed 563200/665488 examples  Epoch 3: processed 576000/665488 examples  Epoch 3: processed 588800/665488 examples  Epoch 3: processed 601600/665488 examples  Epoch 3: processed 614400/665488 examples  Epoch 3: processed 627200/665488 examples  Epoch 3: processed 640000/665488 examples  Epoch 3: processed 652800/665488 examples  Epoch 3: processed 665488/665488 examples  Epoch 3: train loss = 0.0728, train accuracy = 97.45% [1049.1s]
+          dev UAS = 94.81%, LAS = 92.44%
+Model saved to experiments/m3_arc_standard_contextual_rich/checkpoints/best_model.pt
+  Epoch 4: processed 12800/665488 examples  Epoch 4: processed 25600/665488 examples  Epoch 4: processed 38400/665488 examples  Epoch 4: processed 51200/665488 examples  Epoch 4: processed 64000/665488 examples  Epoch 4: processed 76800/665488 examples  Epoch 4: processed 89600/665488 examples  Epoch 4: processed 102400/665488 examples  Epoch 4: processed 115200/665488 examples  Epoch 4: processed 128000/665488 examples  Epoch 4: processed 140800/665488 examples  Epoch 4: processed 153600/665488 examples  Epoch 4: processed 166400/665488 examples  Epoch 4: processed 179200/665488 examples  Epoch 4: processed 192000/665488 examples  Epoch 4: processed 204800/665488 examples  Epoch 4: processed 217600/665488 examples  Epoch 4: processed 230400/665488 examples  Epoch 4: processed 243200/665488 examples  Epoch 4: processed 256000/665488 examples  Epoch 4: processed 268800/665488 examples  Epoch 4: processed 281600/665488 examples  Epoch 4: processed 294400/665488 examples  Epoch 4: processed 307200/665488 examples  Epoch 4: processed 320000/665488 examples  Epoch 4: processed 332800/665488 examples  Epoch 4: processed 345600/665488 examples  Epoch 4: processed 358400/665488 examples  Epoch 4: processed 371200/665488 examples  Epoch 4: processed 384000/665488 examples  Epoch 4: processed 396800/665488 examples  Epoch 4: processed 409600/665488 examples  Epoch 4: processed 422400/665488 examples  Epoch 4: processed 435200/665488 examples  Epoch 4: processed 448000/665488 examples  Epoch 4: processed 460800/665488 examples  Epoch 4: processed 473600/665488 examples  Epoch 4: processed 486400/665488 examples  Epoch 4: processed 499200/665488 examples  Epoch 4: processed 512000/665488 examples  Epoch 4: processed 524800/665488 examples  Epoch 4: processed 537600/665488 examples  Epoch 4: processed 550400/665488 examples  Epoch 4: processed 563200/665488 examples  Epoch 4: processed 576000/665488 examples  Epoch 4: processed 588800/665488 examples  Epoch 4: processed 601600/665488 examples  Epoch 4: processed 614400/665488 examples  Epoch 4: processed 627200/665488 examples  Epoch 4: processed 640000/665488 examples  Epoch 4: processed 652800/665488 examples  Epoch 4: processed 665488/665488 examples  Epoch 4: train loss = 0.0569, train accuracy = 97.98% [2621.0s]
+          dev UAS = 94.71%, LAS = 92.32%
+  Epoch 5: processed 12800/665488 examples  Epoch 5: processed 25600/665488 examples  Epoch 5: processed 38400/665488 examples  Epoch 5: processed 51200/665488 examples  Epoch 5: processed 64000/665488 examples  Epoch 5: processed 76800/665488 examples  Epoch 5: processed 89600/665488 examples  Epoch 5: processed 102400/665488 examples  Epoch 5: processed 115200/665488 examples  Epoch 5: processed 128000/665488 examples  Epoch 5: processed 140800/665488 examples  Epoch 5: processed 153600/665488 examples  Epoch 5: processed 166400/665488 examples  Epoch 5: processed 179200/665488 examples  Epoch 5: processed 192000/665488 examples  Epoch 5: processed 204800/665488 examples  Epoch 5: processed 217600/665488 examples  Epoch 5: processed 230400/665488 examples  Epoch 5: processed 243200/665488 examples  Epoch 5: processed 256000/665488 examples  Epoch 5: processed 268800/665488 examples  Epoch 5: processed 281600/665488 examples  Epoch 5: processed 294400/665488 examples  Epoch 5: processed 307200/665488 examples  Epoch 5: processed 320000/665488 examples  Epoch 5: processed 332800/665488 examples  Epoch 5: processed 345600/665488 examples  Epoch 5: processed 358400/665488 examples  Epoch 5: processed 371200/665488 examples  Epoch 5: processed 384000/665488 examples  Epoch 5: processed 396800/665488 examples  Epoch 5: processed 409600/665488 examples  Epoch 5: processed 422400/665488 examples  Epoch 5: processed 435200/665488 examples  Epoch 5: processed 448000/665488 examples  Epoch 5: processed 460800/665488 examples  Epoch 5: processed 473600/665488 examples  Epoch 5: processed 486400/665488 examples  Epoch 5: processed 499200/665488 examples  Epoch 5: processed 512000/665488 examples  Epoch 5: processed 524800/665488 examples  Epoch 5: processed 537600/665488 examples  Epoch 5: processed 550400/665488 examples  Epoch 5: processed 563200/665488 examples  Epoch 5: processed 576000/665488 examples  Epoch 5: processed 588800/665488 examples  Epoch 5: processed 601600/665488 examples  Epoch 5: processed 614400/665488 examples  Epoch 5: processed 627200/665488 examples  Epoch 5: processed 640000/665488 examples  Epoch 5: processed 652800/665488 examples  Epoch 5: processed 665488/665488 examples  Epoch 5: train loss = 0.0468, train accuracy = 98.33% [1760.3s]
+          dev UAS = 94.90%, LAS = 92.51%
+Model saved to experiments/m3_arc_standard_contextual_rich/checkpoints/best_model.pt
+  Epoch 6: processed 12800/665488 examples  Epoch 6: processed 25600/665488 examples  Epoch 6: processed 38400/665488 examples  Epoch 6: processed 51200/665488 examples  Epoch 6: processed 64000/665488 examples  Epoch 6: processed 76800/665488 examples  Epoch 6: processed 89600/665488 examples  Epoch 6: processed 102400/665488 examples  Epoch 6: processed 115200/665488 examples  Epoch 6: processed 128000/665488 examples  Epoch 6: processed 140800/665488 examples  Epoch 6: processed 153600/665488 examples  Epoch 6: processed 166400/665488 examples  Epoch 6: processed 179200/665488 examples  Epoch 6: processed 192000/665488 examples  Epoch 6: processed 204800/665488 examples  Epoch 6: processed 217600/665488 examples  Epoch 6: processed 230400/665488 examples  Epoch 6: processed 243200/665488 examples  Epoch 6: processed 256000/665488 examples  Epoch 6: processed 268800/665488 examples  Epoch 6: processed 281600/665488 examples  Epoch 6: processed 294400/665488 examples  Epoch 6: processed 307200/665488 examples  Epoch 6: processed 320000/665488 examples  Epoch 6: processed 332800/665488 examples  Epoch 6: processed 345600/665488 examples  Epoch 6: processed 358400/665488 examples  Epoch 6: processed 371200/665488 examples  Epoch 6: processed 384000/665488 examples  Epoch 6: processed 396800/665488 examples  Epoch 6: processed 409600/665488 examples  Epoch 6: processed 422400/665488 examples  Epoch 6: processed 435200/665488 examples  Epoch 6: processed 448000/665488 examples  Epoch 6: processed 460800/665488 examples  Epoch 6: processed 473600/665488 examples  Epoch 6: processed 486400/665488 examples  Epoch 6: processed 499200/665488 examples  Epoch 6: processed 512000/665488 examples  Epoch 6: processed 524800/665488 examples  Epoch 6: processed 537600/665488 examples  Epoch 6: processed 550400/665488 examples  Epoch 6: processed 563200/665488 examples  Epoch 6: processed 576000/665488 examples  Epoch 6: processed 588800/665488 examples  Epoch 6: processed 601600/665488 examples  Epoch 6: processed 614400/665488 examples  Epoch 6: processed 627200/665488 examples  Epoch 6: processed 640000/665488 examples  Epoch 6: processed 652800/665488 examples  Epoch 6: processed 665488/665488 examples  Epoch 6: train loss = 0.0391, train accuracy = 98.64% [343.3s]
+          dev UAS = 95.02%, LAS = 92.60%
+Model saved to experiments/m3_arc_standard_contextual_rich/checkpoints/best_model.pt
+  Epoch 7: processed 12800/665488 examples  Epoch 7: processed 25600/665488 examples  Epoch 7: processed 38400/665488 examples  Epoch 7: processed 51200/665488 examples  Epoch 7: processed 64000/665488 examples  Epoch 7: processed 76800/665488 examples  Epoch 7: processed 89600/665488 examples  Epoch 7: processed 102400/665488 examples  Epoch 7: processed 115200/665488 examples  Epoch 7: processed 128000/665488 examples  Epoch 7: processed 140800/665488 examples  Epoch 7: processed 153600/665488 examples  Epoch 7: processed 166400/665488 examples  Epoch 7: processed 179200/665488 examples  Epoch 7: processed 192000/665488 examples  Epoch 7: processed 204800/665488 examples  Epoch 7: processed 217600/665488 examples  Epoch 7: processed 230400/665488 examples  Epoch 7: processed 243200/665488 examples  Epoch 7: processed 256000/665488 examples  Epoch 7: processed 268800/665488 examples  Epoch 7: processed 281600/665488 examples  Epoch 7: processed 294400/665488 examples  Epoch 7: processed 307200/665488 examples  Epoch 7: processed 320000/665488 examples  Epoch 7: processed 332800/665488 examples  Epoch 7: processed 345600/665488 examples  Epoch 7: processed 358400/665488 examples  Epoch 7: processed 371200/665488 examples  Epoch 7: processed 384000/665488 examples  Epoch 7: processed 396800/665488 examples  Epoch 7: processed 409600/665488 examples  Epoch 7: processed 422400/665488 examples  Epoch 7: processed 435200/665488 examples  Epoch 7: processed 448000/665488 examples  Epoch 7: processed 460800/665488 examples  Epoch 7: processed 473600/665488 examples  Epoch 7: processed 486400/665488 examples  Epoch 7: processed 499200/665488 examples  Epoch 7: processed 512000/665488 examples  Epoch 7: processed 524800/665488 examples  Epoch 7: processed 537600/665488 examples  Epoch 7: processed 550400/665488 examples  Epoch 7: processed 563200/665488 examples  Epoch 7: processed 576000/665488 examples  Epoch 7: processed 588800/665488 examples  Epoch 7: processed 601600/665488 examples  Epoch 7: processed 614400/665488 examples  Epoch 7: processed 627200/665488 examples  Epoch 7: processed 640000/665488 examples  Epoch 7: processed 652800/665488 examples  Epoch 7: processed 665488/665488 examples  Epoch 7: train loss = 0.0335, train accuracy = 98.82% [342.6s]
+          dev UAS = 94.70%, LAS = 92.30%
+  Epoch 8: processed 12800/665488 examples  Epoch 8: processed 25600/665488 examples  Epoch 8: processed 38400/665488 examples  Epoch 8: processed 51200/665488 examples  Epoch 8: processed 64000/665488 examples  Epoch 8: processed 76800/665488 examples  Epoch 8: processed 89600/665488 examples  Epoch 8: processed 102400/665488 examples  Epoch 8: processed 115200/665488 examples  Epoch 8: processed 128000/665488 examples  Epoch 8: processed 140800/665488 examples  Epoch 8: processed 153600/665488 examples  Epoch 8: processed 166400/665488 examples  Epoch 8: processed 179200/665488 examples  Epoch 8: processed 192000/665488 examples  Epoch 8: processed 204800/665488 examples  Epoch 8: processed 217600/665488 examples  Epoch 8: processed 230400/665488 examples  Epoch 8: processed 243200/665488 examples  Epoch 8: processed 256000/665488 examples  Epoch 8: processed 268800/665488 examples  Epoch 8: processed 281600/665488 examples  Epoch 8: processed 294400/665488 examples  Epoch 8: processed 307200/665488 examples  Epoch 8: processed 320000/665488 examples  Epoch 8: processed 332800/665488 examples  Epoch 8: processed 345600/665488 examples  Epoch 8: processed 358400/665488 examples  Epoch 8: processed 371200/665488 examples  Epoch 8: processed 384000/665488 examples  Epoch 8: processed 396800/665488 examples  Epoch 8: processed 409600/665488 examples  Epoch 8: processed 422400/665488 examples  Epoch 8: processed 435200/665488 examples  Epoch 8: processed 448000/665488 examples  Epoch 8: processed 460800/665488 examples  Epoch 8: processed 473600/665488 examples  Epoch 8: processed 486400/665488 examples  Epoch 8: processed 499200/665488 examples  Epoch 8: processed 512000/665488 examples  Epoch 8: processed 524800/665488 examples  Epoch 8: processed 537600/665488 examples  Epoch 8: processed 550400/665488 examples  Epoch 8: processed 563200/665488 examples  Epoch 8: processed 576000/665488 examples  Epoch 8: processed 588800/665488 examples  Epoch 8: processed 601600/665488 examples  Epoch 8: processed 614400/665488 examples  Epoch 8: processed 627200/665488 examples  Epoch 8: processed 640000/665488 examples  Epoch 8: processed 652800/665488 examples  Epoch 8: processed 665488/665488 examples  Epoch 8: train loss = 0.0305, train accuracy = 98.96% [351.1s]
+          dev UAS = 95.09%, LAS = 92.76%
+Model saved to experiments/m3_arc_standard_contextual_rich/checkpoints/best_model.pt
+  Epoch 9: processed 12800/665488 examples  Epoch 9: processed 25600/665488 examples  Epoch 9: processed 38400/665488 examples  Epoch 9: processed 51200/665488 examples  Epoch 9: processed 64000/665488 examples  Epoch 9: processed 76800/665488 examples  Epoch 9: processed 89600/665488 examples  Epoch 9: processed 102400/665488 examples  Epoch 9: processed 115200/665488 examples  Epoch 9: processed 128000/665488 examples  Epoch 9: processed 140800/665488 examples  Epoch 9: processed 153600/665488 examples  Epoch 9: processed 166400/665488 examples  Epoch 9: processed 179200/665488 examples  Epoch 9: processed 192000/665488 examples  Epoch 9: processed 204800/665488 examples  Epoch 9: processed 217600/665488 examples  Epoch 9: processed 230400/665488 examples  Epoch 9: processed 243200/665488 examples  Epoch 9: processed 256000/665488 examples  Epoch 9: processed 268800/665488 examples  Epoch 9: processed 281600/665488 examples  Epoch 9: processed 294400/665488 examples  Epoch 9: processed 307200/665488 examples  Epoch 9: processed 320000/665488 examples  Epoch 9: processed 332800/665488 examples  Epoch 9: processed 345600/665488 examples  Epoch 9: processed 358400/665488 examples  Epoch 9: processed 371200/665488 examples  Epoch 9: processed 384000/665488 examples  Epoch 9: processed 396800/665488 examples  Epoch 9: processed 409600/665488 examples  Epoch 9: processed 422400/665488 examples  Epoch 9: processed 435200/665488 examples  Epoch 9: processed 448000/665488 examples  Epoch 9: processed 460800/665488 examples  Epoch 9: processed 473600/665488 examples  Epoch 9: processed 486400/665488 examples  Epoch 9: processed 499200/665488 examples  Epoch 9: processed 512000/665488 examples  Epoch 9: processed 524800/665488 examples  Epoch 9: processed 537600/665488 examples  Epoch 9: processed 550400/665488 examples  Epoch 9: processed 563200/665488 examples  Epoch 9: processed 576000/665488 examples  Epoch 9: processed 588800/665488 examples  Epoch 9: processed 601600/665488 examples  Epoch 9: processed 614400/665488 examples  Epoch 9: processed 627200/665488 examples  Epoch 9: processed 640000/665488 examples  Epoch 9: processed 652800/665488 examples  Epoch 9: processed 665488/665488 examples  Epoch 9: train loss = 0.0277, train accuracy = 99.05% [366.0s]
+          dev UAS = 95.00%, LAS = 92.64%
+  Epoch 10: processed 12800/665488 examples  Epoch 10: processed 25600/665488 examples  Epoch 10: processed 38400/665488 examples  Epoch 10: processed 51200/665488 examples  Epoch 10: processed 64000/665488 examples  Epoch 10: processed 76800/665488 examples  Epoch 10: processed 89600/665488 examples  Epoch 10: processed 102400/665488 examples  Epoch 10: processed 115200/665488 examples  Epoch 10: processed 128000/665488 examples  Epoch 10: processed 140800/665488 examples  Epoch 10: processed 153600/665488 examples  Epoch 10: processed 166400/665488 examples  Epoch 10: processed 179200/665488 examples  Epoch 10: processed 192000/665488 examples  Epoch 10: processed 204800/665488 examples  Epoch 10: processed 217600/665488 examples  Epoch 10: processed 230400/665488 examples  Epoch 10: processed 243200/665488 examples  Epoch 10: processed 256000/665488 examples  Epoch 10: processed 268800/665488 examples  Epoch 10: processed 281600/665488 examples  Epoch 10: processed 294400/665488 examples  Epoch 10: processed 307200/665488 examples  Epoch 10: processed 320000/665488 examples  Epoch 10: processed 332800/665488 examples  Epoch 10: processed 345600/665488 examples  Epoch 10: processed 358400/665488 examples  Epoch 10: processed 371200/665488 examples  Epoch 10: processed 384000/665488 examples  Epoch 10: processed 396800/665488 examples  Epoch 10: processed 409600/665488 examples  Epoch 10: processed 422400/665488 examples  Epoch 10: processed 435200/665488 examples  Epoch 10: processed 448000/665488 examples  Epoch 10: processed 460800/665488 examples  Epoch 10: processed 473600/665488 examples  Epoch 10: processed 486400/665488 examples  Epoch 10: processed 499200/665488 examples  Epoch 10: processed 512000/665488 examples  Epoch 10: processed 524800/665488 examples  Epoch 10: processed 537600/665488 examples  Epoch 10: processed 550400/665488 examples  Epoch 10: processed 563200/665488 examples  Epoch 10: processed 576000/665488 examples  Epoch 10: processed 588800/665488 examples  Epoch 10: processed 601600/665488 examples  Epoch 10: processed 614400/665488 examples  Epoch 10: processed 627200/665488 examples  Epoch 10: processed 640000/665488 examples  Epoch 10: processed 652800/665488 examples  Epoch 10: processed 665488/665488 examples  Epoch 10: train loss = 0.0255, train accuracy = 99.14% [380.3s]
+          dev UAS = 94.97%, LAS = 92.72%
+Model saved to experiments/m3_arc_standard_contextual_rich/model_final.pt
+Model loaded from experiments/m3_arc_standard_contextual_rich/model_best_dev.pt
+
+Final M3 results (best-dev checkpoint)
+  Projective training sentences kept: 13816 / 14450
+  Generated transition examples: 665488
+  Selected epoch: 8
+  Dev UAS/LAS:  95.09 / 92.76
+  Test UAS/LAS: 93.41 / 90.51
+  Training time: 9759.36s
+  Parsing time:  21.82s

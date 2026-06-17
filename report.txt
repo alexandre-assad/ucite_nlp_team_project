@@ -1,0 +1,1183 @@
+================================================================================
+ A Comparative Study of Transition-Based Dependency Parsing for French
+================================================================================
+
+Authors: Project Team
+Date: June 2026
+Course: Formal Language and Parsing
+
+
+================================================================================
+Abstract
+================================================================================
+
+This project investigates how transition systems and feature representations
+affect the quality of a transition-based dependency parser for French. We
+implemented a modular parsing framework and compared six frozen models. The
+first baseline, M0, uses Arc-Eager, sparse handcrafted features, an averaged
+perceptron, and greedy decoding. We then trained a projective Arc-Eager control
+model (M0p), an Arc-Standard sparse baseline (M1), a minimal dense FastText
+model (M2), a richer dense FastText model with POS and dependency-label
+embeddings (M2b), and a contextual model based on frozen Camembert embeddings
+(M3).
+
+Final test scores reveal clear differences across both transition systems and
+feature representations. M0 reaches 83.76 UAS / 77.92 LAS. Projective
+filtering improves Arc-Eager in M0p to 85.17 / 79.50. Under the same
+projective training condition, Arc-Standard in M1 reaches 87.69 / 83.69. The
+minimal dense model M2 performs much worse at 78.47 / 69.74, showing that word
+embeddings alone are not enough in this setting. The richer dense model M2b
+improves strongly to 88.90 / 85.12. The best model, M3, reaches 93.41 / 90.51
+with frozen Camembert-based contextual representations. The error analysis
+supports the same overall picture: Arc-Standard helps on structurally difficult
+cases, rich dense features recover important syntactic information, and
+contextual embeddings are especially useful for longer and more difficult
+dependencies.
+
+
+================================================================================
+1. Introduction
+================================================================================
+
+Dependency parsing is the task of assigning a syntactic tree to a sentence. In a
+dependency tree, each token depends on a head token, and the arc between them
+is labeled with a grammatical relation such as subject, object, determiner, or
+modifier. Dependency parsing is a central NLP task because syntactic structure
+is useful for information extraction, question answering, machine translation,
+semantic analysis, and many other downstream applications.
+
+The goal of this project was to build a transition-based dependency parser for
+French and to study how different modeling choices affect performance. The
+central research question of the project is:
+
+How do transition systems and feature representations affect the performance of
+a transition-based dependency parser for French?
+
+We focused on transition-based parsing because it is efficient, conceptually
+clear, and well suited to a comparative project. A transition-based parser
+constructs a tree incrementally through a sequence of local decisions. This
+makes it possible to compare several dimensions of the model while keeping the
+general parsing framework fixed.
+
+The final project is organized around six frozen models:
+
+- M0: Arc-Eager + sparse handcrafted features + averaged perceptron
+- M0p: same as M0, but trained on the projective subset only
+- M1: Arc-Standard + sparse handcrafted features + averaged perceptron
+- M2: Arc-Standard + minimal FastText word embeddings + MLP
+- M2b: Arc-Standard + rich dense FastText features + MLP
+- M3: Arc-Standard + frozen Camembert contextual features + MLP
+
+The rest of this report follows the structure requested by the teacher. It
+includes a theoretical part, an experiments and results section, a short
+computer science part, and a user manual.
+
+
+================================================================================
+2. Theoretical Background
+================================================================================
+
+
+--------------------------------------------------------------------------------
+2.1 Dependency Parsing
+--------------------------------------------------------------------------------
+
+In dependency parsing, a sentence is represented as a tree over tokens. Each
+token, except the sentence root, has exactly one syntactic head. Each head-
+dependent relation is associated with a label, for example:
+
+- `nsubj` for nominal subject
+- `obj` for object
+- `det` for determiner
+- `amod` for adjectival modifier
+- `obl:mod` for oblique modifier
+
+The root of the sentence is attached to a virtual ROOT node. In Universal
+Dependencies, dependency labels are standardized across languages, which makes
+the annotation scheme consistent and reusable.
+
+In this project, the input sentences come from the French GSD Universal
+Dependencies treebank. The parser predicts a labeled dependency tree for each
+sentence.
+
+
+--------------------------------------------------------------------------------
+2.2 UAS and LAS
+--------------------------------------------------------------------------------
+
+We use the two standard dependency parsing metrics:
+
+- UAS, or Unlabeled Attachment Score
+- LAS, or Labeled Attachment Score
+
+UAS measures the percentage of tokens whose predicted head is correct,
+regardless of the label. LAS is stricter: both the head and the dependency
+label must be correct.
+
+LAS is especially important for this project because many of the model
+differences appear not only in attachment quality but also in label selection.
+For example, two models may attach a token to the right head but disagree
+between labels such as `conj`, `nmod`, `obl:arg`, or `obl:mod`.
+
+
+--------------------------------------------------------------------------------
+2.3 Transition-Based Parsing
+--------------------------------------------------------------------------------
+
+Transition-based parsing builds a tree step by step. A parser state is called a
+configuration. In our implementation, a configuration contains:
+
+- a stack
+- a buffer
+- a set of arcs built so far
+
+At the beginning:
+
+- the stack contains only a virtual ROOT token
+- the buffer contains the sentence tokens
+- the arc set is empty
+
+At each step, the parser applies one transition. This transition modifies the
+stack and buffer and may create a dependency arc. Parsing ends when the parser
+reaches a terminal configuration.
+
+The transition-based approach has two major strengths:
+
+- it is efficient, often linear in sentence length
+- it provides a clean interface between parsing logic and machine learning
+
+The main weakness is that local mistakes can propagate. If the parser makes a
+bad transition early, the rest of the derivation may be affected.
+
+
+--------------------------------------------------------------------------------
+2.4 Arc-Eager and Arc-Standard
+--------------------------------------------------------------------------------
+
+We compared two classical projective transition systems.
+
+Arc-Eager:
+
+- SHIFT
+- LEFT-ARC(label)
+- RIGHT-ARC(label)
+- REDUCE
+
+Arc-Eager is incremental. It can create right arcs early, as soon as the head
+is available on the stack. This makes it efficient and intuitive, but it also
+means that the parser must decide early whether a token should be reduced or
+kept for future attachments.
+
+Arc-Standard:
+
+- SHIFT
+- LEFT-ARC(label)
+- RIGHT-ARC(label)
+
+Arc-Standard is more bottom-up. It combines already constructed subtrees before
+removing items from the stack. There is no separate REDUCE transition.
+
+This difference matters for our research question. One plausible hypothesis is
+that Arc-Standard makes fewer premature decisions than Arc-Eager, especially in
+sentences with coordination, relative clauses, and longer dependencies.
+
+
+--------------------------------------------------------------------------------
+2.5 Static Oracle and Greedy Decoding
+--------------------------------------------------------------------------------
+
+During training, the parser needs supervision that tells it which transition is
+correct in each gold configuration. This role is played by the oracle.
+
+In this project we used static oracles only. A static oracle is deterministic:
+for each gold configuration, it returns a single gold transition according to
+the transition system. This is simple and appropriate for a baseline, but it
+has limits. It teaches the parser only on gold trajectories and does not
+explicitly train it to recover from its own mistakes.
+
+At test time, all models use greedy decoding. This means that at each step, the
+parser selects the locally best transition and applies it immediately, without
+searching over multiple future derivations. Greedy decoding is fast, but it is
+sensitive to local classification errors.
+
+
+--------------------------------------------------------------------------------
+2.6 Feature Representations
+--------------------------------------------------------------------------------
+
+The project compares four main feature strategies.
+
+1. Sparse handcrafted features
+
+These are symbolic features extracted from the parser configuration, such as:
+
+- word forms
+- lemmas
+- UPOS tags
+- local position combinations
+- structural information from already attached children
+- distance and configuration size features
+
+This is the feature representation used by M0, M0p, and M1.
+
+2. Minimal static dense word embeddings
+
+M2 replaces sparse features with FastText word vectors extracted only at a few
+positions: `s1`, `s0`, `b0`, and `b1`. These vectors are concatenated and fed
+to an MLP classifier.
+
+3. Rich dense syntactic features
+
+M2b keeps static FastText word vectors, but adds:
+
+- more parser positions (`s0`, `s1`, `s2`, `b0`, `b1`, `b2`)
+- child positions of stack items
+- POS embeddings
+- dependency-label embeddings
+- small structural features
+
+This design is closer in spirit to neural transition parsers such as Chen and
+Manning (2014), which do not rely on word embeddings alone.
+
+4. Contextual embeddings
+
+M3 replaces the static word vectors of M2b with frozen contextual Camembert
+embeddings, while keeping the richer parser-state structure. Each sentence is
+tokenized with Camembert, token-level vectors are built by subword pooling, and
+the result is cached per sentence to avoid recomputation at every transition.
+
+
+--------------------------------------------------------------------------------
+2.7 Advantages and Disadvantages of Transition-Based Parsing
+--------------------------------------------------------------------------------
+
+Advantages:
+
+- efficient incremental parsing
+- simple and modular architecture
+- direct compatibility with supervised learning
+- easy comparison of transition systems, features, classifiers, and decoders
+
+Disadvantages:
+
+- greedy decoding can propagate errors
+- static oracles do not teach recovery from mistakes
+- projective systems cannot model all non-projective trees
+- performance depends strongly on feature quality and local decision quality
+
+These trade-offs are exactly why transition-based parsing is a good framework
+for this comparative study.
+
+
+================================================================================
+3. Resources
+================================================================================
+
+
+--------------------------------------------------------------------------------
+3.1 Treebank
+--------------------------------------------------------------------------------
+
+The main dataset is the French GSD treebank from Universal Dependencies in
+CoNLL-U format.
+
+Corpus sizes used in the project:
+
+- Train: 14,450 sentences, 354,648 tokens
+- Dev:   1,476 sentences,  35,721 tokens
+- Test:    416 sentences,  10,017 tokens
+
+For M0, we used the full training set. For M0p, M1, M2, M2b, and M3, we used a
+projective training subset because Arc-Standard with a static oracle assumes
+projective derivations, and we also wanted a fair Arc-Eager vs Arc-Standard
+comparison under the same projective condition.
+
+Projective training subset:
+
+- kept: 13,816 / 14,450 training sentences
+- filtered out: 634 training sentences
+
+Dev and test were not filtered. This was important because we wanted evaluation
+on the standard test set rather than on an easier reduced test set.
+
+
+--------------------------------------------------------------------------------
+3.2 FastText
+--------------------------------------------------------------------------------
+
+For M2 and M2b, we used French FastText embeddings stored locally at:
+
+`data/embeddings/cc.fr.300.bin`
+
+FastText is useful because it provides word vectors with subword information.
+This is especially helpful for French morphology and out-of-vocabulary words.
+
+
+--------------------------------------------------------------------------------
+3.3 Camembert
+--------------------------------------------------------------------------------
+
+For M3, we used `camembert-base`, a French contextual language model based on
+the RoBERTa family. In our implementation, Camembert remained frozen. We used
+it only as a contextual feature extractor, not as a fine-tuned end-to-end
+parser.
+
+
+--------------------------------------------------------------------------------
+3.4 Sources Actually Used
+--------------------------------------------------------------------------------
+
+The theoretical and experimental framing of the project relies on the following
+resources:
+
+- Universal Dependencies and the French GSD treebank
+- Nivre (2003) for transition-based projective parsing
+- Chen and Manning (2014) for neural transition-based parsing with dense
+  features
+- Kulmizev et al. (2019) for contextual embeddings in dependency parsing
+- FastText pre-trained French embeddings
+- Camembert as the contextual French encoder used in M3
+
+
+================================================================================
+4. Methodology
+================================================================================
+
+
+--------------------------------------------------------------------------------
+4.1 Modular Parsing Framework
+--------------------------------------------------------------------------------
+
+We refactored the project into a modular framework with explicit abstractions
+for:
+
+- transition system
+- oracle
+- feature extractor
+- classifier
+- decoder
+- evaluator
+
+This framework made it possible to compare models cleanly while preserving as
+much of the surrounding pipeline as possible.
+
+The main abstractions are:
+
+- `TransitionSystem`
+  Handles initial configuration, terminal condition, valid transitions, and
+  transition application.
+
+- `Oracle`
+  Provides the gold transition during supervised training.
+
+- `FeatureExtractor`
+  Converts a parser configuration into a model input representation.
+
+- `Decoder`
+  Parses a sentence by applying predicted transitions until termination.
+
+On top of this framework, we wrapped:
+
+- `ArcEagerSystem`
+- `ArcStandardSystem`
+- `StaticArcEagerOracle`
+- `StaticArcStandardOracle`
+- `SparseFeatureExtractor`
+- dense FastText feature extractors
+- contextual Camembert feature extractors
+- `GreedyDecoder`
+
+
+--------------------------------------------------------------------------------
+4.2 Training and Evaluation Protocol
+--------------------------------------------------------------------------------
+
+All main experiments use:
+
+- supervised training
+- greedy decoding
+- seed `0`
+
+Checkpointing policy:
+
+- M0 was frozen as the final epoch-10 averaged model because intermediate
+  checkpoints were not saved during the first run. The best development LAS was
+  observed around epochs 4 and 5, but no retrospective model selection was
+  possible.
+- M0p, M1, M2, M2b, and M3 use best-dev checkpointing by dev LAS, with dev UAS
+  as tie-breaker.
+
+Selected checkpoints:
+
+- M0: epoch 10 frozen baseline
+- M0p: epoch 8
+- M1: epoch 10
+- M2: epoch 9
+- M2b: epoch 10
+- M3: epoch 8
+
+Evaluation:
+
+- UAS and LAS on the official test split
+- additional error analysis from frozen predictions only
+
+
+--------------------------------------------------------------------------------
+4.3 Compared Models
+--------------------------------------------------------------------------------
+
+The six frozen models are:
+
+M0
+  Arc-Eager + Static Oracle + Sparse Handcrafted Features + Averaged
+  Perceptron + Greedy Decoding
+
+M0p
+  Same as M0, but trained on the projective subset only
+
+M1
+  Arc-Standard + Static Oracle + Sparse Handcrafted Features + Averaged
+  Perceptron + Greedy Decoding
+
+M2
+  Arc-Standard + Static Oracle + Minimal FastText Word Embeddings + MLP +
+  Greedy Decoding
+
+M2b
+  Arc-Standard + Static Oracle + FastText Word Embeddings + POS Embeddings +
+  Dependency Label Embeddings + MLP + Greedy Decoding
+
+M3
+  Arc-Standard + Static Oracle + Frozen Camembert Contextual Embeddings + POS
+  Embeddings + Dependency Label Embeddings + MLP + Greedy Decoding
+
+When possible, we changed one main component at a time. The cleanest
+transition-system comparison is M0p vs M1. The cleanest representation
+comparison is M1 vs M2 vs M2b vs M3 under the same Arc-Standard parsing setup.
+
+One nuance remains important: moving from sparse to dense representations also
+changes the classifier from an averaged perceptron to an MLP. This is a normal
+design choice in the neural part of the study, but it should still be kept in
+mind when interpreting the results.
+
+
+================================================================================
+5. Experiments and Results
+================================================================================
+
+
+--------------------------------------------------------------------------------
+5.1 Overall Results
+--------------------------------------------------------------------------------
+
+Final frozen results on the test set:
+
+Model | Transition system | Main representation | Test UAS | Test LAS
+------|-------------------|--------------------|----------|---------
+M0    | Arc-Eager         | Sparse handcrafted | 83.76    | 77.92
+M0p   | Arc-Eager         | Sparse handcrafted | 85.17    | 79.50
+M1    | Arc-Standard      | Sparse handcrafted | 87.69    | 83.69
+M2    | Arc-Standard      | Minimal FastText   | 78.47    | 69.74
+M2b   | Arc-Standard      | Rich dense         | 88.90    | 85.12
+M3    | Arc-Standard      | Contextual rich    | 93.41    | 90.51
+
+The overall ranking is clear:
+
+- M0p improves over M0
+- M1 improves over M0p
+- M2 collapses relative to M1
+- M2b strongly improves over M2 and slightly surpasses M1
+- M3 is the strongest model by a large margin
+
+
+--------------------------------------------------------------------------------
+5.2 Transition-System Comparison: M0, M0p, M1
+--------------------------------------------------------------------------------
+
+The first question is whether Arc-Standard is better than Arc-Eager, and if so,
+whether the difference is due only to projective filtering.
+
+Important control:
+
+- M0 uses the full training set
+- M0p uses the same Arc-Eager model but with the projective subset
+- M1 uses Arc-Standard on the same projective subset as M0p
+
+Observed differences:
+
+- M0p vs M0: +1.41 UAS / +1.58 LAS
+- M1 vs M0p: +2.52 UAS / +4.19 LAS
+- M1 vs M0:  +3.93 UAS / +5.77 LAS
+
+Interpretation:
+
+Projective filtering helps Arc-Eager. This is expected, because a projective
+parser benefits from training data that matches its structural assumptions.
+However, projective filtering does not fully explain the M1 advantage. Even
+under the same projective training condition, Arc-Standard remains clearly
+better than Arc-Eager.
+
+This result suggests that the difference comes from the transition system
+itself, not only from the training subset. Arc-Standard's bottom-up behavior
+seems to reduce some of the premature attachment or reduction mistakes that
+Arc-Eager can make.
+
+
+--------------------------------------------------------------------------------
+5.3 Representation Comparison: M1, M2, M2b, M3
+--------------------------------------------------------------------------------
+
+The second question is how feature representation affects performance once the
+transition system is fixed to Arc-Standard.
+
+M1 -> M2:
+
+- M1: 87.69 UAS / 83.69 LAS
+- M2: 78.47 UAS / 69.74 LAS
+
+The drop is very large. Minimal word embeddings alone are clearly not enough in
+this transition-based setting.
+
+M2 -> M2b:
+
+- UAS: +10.43
+- LAS: +15.38
+
+This is the largest recovery in the study. It shows that the problem with M2
+was not dense representation in general. The issue was that M2 removed too much
+explicit syntactic information.
+
+M2b -> M3:
+
+- UAS: +4.51
+- LAS: +5.39
+
+M3 then adds a second major improvement by replacing static word vectors with
+contextualized Camembert token representations while keeping the richer parser
+state structure.
+
+M3 vs M1:
+
+- UAS: +5.72
+- LAS: +6.82
+
+So the best contextual model also clearly outperforms the strongest sparse
+baseline.
+
+
+--------------------------------------------------------------------------------
+5.4 Main Result Interpretation
+--------------------------------------------------------------------------------
+
+The experiments suggest the following main conclusions:
+
+1. The transition system matters.
+   Arc-Standard performs better than Arc-Eager even under the same projective
+   training condition.
+
+2. Word embeddings alone are not enough.
+   The poor result of M2 shows that replacing sparse syntax-aware features with
+   only a few lexical vectors is too weak.
+
+3. Dense models need explicit syntactic structure.
+   M2b shows that adding POS information, dependency-label information, richer
+   parser positions, and child structure changes the picture completely.
+
+4. Contextual embeddings add another important gain.
+   M3 shows that contextual sentence information is useful for local transition
+   decisions in a greedy parser.
+
+
+================================================================================
+6. Error Analysis
+================================================================================
+
+The final error analysis was produced from frozen prediction files only. It
+compares all six models using:
+
+- overall score tables
+- label-level analysis
+- sentence-length buckets
+- dependency-distance buckets
+- ROOT analysis
+- label confusion tables
+- pairwise qualitative examples
+
+The source files for this section are stored in:
+
+- `experiments/error_analysis/error_analysis_summary.md`
+- `experiments/error_analysis/transition_system_error_analysis.md`
+- `experiments/error_analysis/m0p_vs_m1_examples.md`
+- `experiments/error_analysis/m2_vs_m2b_examples.md`
+- `experiments/error_analysis/m2b_vs_m3_examples.md`
+
+
+--------------------------------------------------------------------------------
+6.1 Label-Level Patterns
+--------------------------------------------------------------------------------
+
+For the Arc-Eager vs Arc-Standard comparison, the largest M1 over M0p LAS gains
+among labels with enough support are:
+
+- `advcl`: +39.45
+- `obl:agent`: +39.40
+- `conj`: +24.77
+- `acl:relcl`: +24.29
+- `nsubj:pass`: +16.92
+
+These labels are not random. They are often associated with more difficult
+structures such as clausal relations, coordination, and more distant
+attachments.
+
+For the dense representation comparison, M2b improves strongly over M2 on:
+
+- `nsubj:pass`: +64.62 LAS
+- `obl:agent`: +57.58
+- `advcl`: +48.62
+- `iobj`: +46.88
+- `obl:arg`: +43.32
+- `acl:relcl`: +42.86
+- `conj`: +41.07
+
+This confirms that richer dense syntax-aware features are essential.
+
+For the contextual comparison, M3 improves most over M2b on:
+
+- `acl:relcl`: +20.00 LAS
+- `acl`: +19.62
+- `conj`: +19.43
+- `advcl`: +18.35
+- `fixed`: +17.14
+
+These results suggest that contextual embeddings are especially useful on
+clausal and coordination-related structures.
+
+
+--------------------------------------------------------------------------------
+6.2 Sentence Length
+--------------------------------------------------------------------------------
+
+All models perform worse on longer sentences, which is expected. However, the
+severity of the drop differs a lot.
+
+LAS by sentence length:
+
+- M0p: 83.22 (1-10) -> 76.68 (41+)
+- M1: 84.85 (1-10) -> 80.29 (41+)
+- M2: 75.06 (1-10) -> 67.86 (41+)
+- M2b: 88.81 (1-10) -> 81.54 (41+)
+- M3: 93.01 (1-10) -> 89.63 (41+)
+
+Two trends stand out:
+
+- Arc-Standard is stronger than Arc-Eager across all sentence-length buckets.
+- Contextual and richer dense models remain much more stable on long sentences
+  than minimal dense or sparse baselines.
+
+
+--------------------------------------------------------------------------------
+6.3 Dependency Distance
+--------------------------------------------------------------------------------
+
+Dependency distance is even more informative than sentence length. Long
+dependencies are harder for all models, but the gap between models becomes much
+larger there.
+
+LAS on dependencies with distance 8+:
+
+- M0:  37.26
+- M0p: 43.52
+- M1:  55.31
+- M2:  29.19
+- M2b: 58.70
+- M3:  74.52
+
+This is one of the clearest findings in the study. The largest gains of M3
+appear on long-distance dependencies, exactly where a greedy transition-based
+parser benefits most from richer sentence-level information.
+
+The results therefore strongly suggest that contextual embeddings help the
+parser make better local decisions when the correct head is not nearby.
+
+
+--------------------------------------------------------------------------------
+6.4 ROOT Analysis
+--------------------------------------------------------------------------------
+
+ROOT behavior also improves clearly across the model sequence.
+
+ROOT F1:
+
+- M0:  69.71
+- M0p: 71.63
+- M1:  81.01
+- M2:  60.10
+- M2b: 86.30
+- M3:  94.23
+
+Wrong ROOT attachments:
+
+- M0: 126
+- M0p: 118
+- M1: 79
+- M2: 166
+- M2b: 57
+- M3: 24
+
+M2 is especially weak here, which is consistent with its overall structural
+weakness. M3 is by far the most reliable model at selecting the main sentence
+head.
+
+
+--------------------------------------------------------------------------------
+6.5 Label Confusions
+--------------------------------------------------------------------------------
+
+The confusion tables show recurring label-level problems.
+
+In M0 and M0p, some of the most frequent confusions are:
+
+- `conj -> nmod`
+- `obl:arg -> obl:mod`
+- `nmod -> conj`
+- `nsubj:pass -> nsubj`
+
+In M2, confusions become much worse and often reflect lack of explicit syntax:
+
+- `obj -> obl:mod` (89 cases)
+- `conj -> nmod`
+- `obl:arg -> obl:mod`
+- `nsubj -> obj`
+- `iobj -> nsubj`
+
+In M3, the number and size of confusions decrease substantially, but some hard
+distinctions remain, especially:
+
+- `obl:mod <-> obl:arg`
+- `nmod -> appos`
+- `nsubj -> nsubj:pass`
+
+These patterns support the idea that label prediction benefits from richer local
+syntax and from contextual information.
+
+
+--------------------------------------------------------------------------------
+6.6 Concrete Examples
+--------------------------------------------------------------------------------
+
+We selected a few representative token-level examples from the frozen example
+files.
+
+Arc-Eager vs Arc-Standard:
+
+- In `m0p_vs_m1_examples.md`, the token `films` has gold head 5 and label
+  `conj`. M0p predicts head 18 and label `nsubj`, while M1 predicts the correct
+  `conj` attachment. This is a clear coordination error.
+
+- In the same file, the token `vus` has gold label `acl:relcl`. M0p predicts
+  head 2 with label `ccomp`, while M1 predicts the correct relative-clause
+  attachment. This matches the strong M1 gain on `acl:relcl`.
+
+Dense vs rich dense:
+
+- In `m2_vs_m2b_examples.md`, the token `qu'` has gold head 21 and label
+  `mark`. M2 predicts head 5 and label `case`, while M2b predicts the correct
+  `mark` attachment. This illustrates how M2 struggles even on function words.
+
+- In the same file, `scientifiques` has gold label `conj`. M2 predicts `amod`,
+  while M2b predicts the correct `conj`. This is consistent with the large M2b
+  gain on coordination.
+
+Rich dense vs contextual:
+
+- In `m2b_vs_m3_examples.md`, the token `nous` has gold label `nsubj`. M2b
+  predicts `iobj`, while M3 predicts the correct subject label.
+
+- In the same file, the token `autonome` has gold head 13 and label `amod`.
+  M2b predicts head 9, while M3 predicts the correct attachment to head 13.
+
+These examples are small, but they match the global tables very well:
+
+- Arc-Standard helps on structural attachment decisions.
+- Rich dense features help recover explicit syntax.
+- Contextual embeddings help both attachment and labeling, especially in harder
+  cases.
+
+
+================================================================================
+7. Computer Science Part
+================================================================================
+
+
+--------------------------------------------------------------------------------
+7.1 Code Organization
+--------------------------------------------------------------------------------
+
+The code is organized into small, focused modules.
+
+Core parser modules:
+
+- `configuration.py`: parser configuration object
+- `transitions.py`: Arc-Eager and Arc-Standard transition systems
+- `oracle.py`: static oracles
+- `features.py`: sparse feature extraction
+- `perceptron.py`: averaged perceptron
+- `parser.py`: training and greedy decoding
+- `data_utils.py`: CoNLL-U reading and writing
+- `evaluator.py`: UAS/LAS evaluation
+- `framework.py`: generic component abstractions
+- `component_registry.py`: mapping from names to components
+
+Dense and contextual modules:
+
+- `dense_embeddings.py`
+- `dense_features.py`
+- `dense_model.py`
+- `dense_training.py`
+- `dense_rich_features.py`
+- `dense_rich_model.py`
+- `dense_rich_training.py`
+- `contextual_embeddings.py`
+- `contextual_rich_features.py`
+- `contextual_rich_model.py`
+- `contextual_rich_training.py`
+
+Experiment and analysis scripts:
+
+- `run_m0_experiment.py`
+- `run_m0p_projective_experiment.py`
+- `run_m1_experiment.py`
+- `run_m2_dense_experiment.py`
+- `run_m2b_dense_rich_experiment.py`
+- `run_m3_contextual_experiment.py`
+- `analyze_errors.py`
+
+Frozen outputs are stored in separate folders inside `experiments/`.
+
+
+--------------------------------------------------------------------------------
+7.2 Implementation Choices
+--------------------------------------------------------------------------------
+
+Some important implementation choices are worth mentioning.
+
+1. Virtual ROOT token
+
+Each sentence receives a virtual ROOT token at index 0. This keeps head
+indexing simple and makes transition logic easier to implement.
+
+2. Modular framework
+
+The parsing pipeline is decomposed into transition system, oracle, feature
+extractor, classifier, and decoder. This made later comparisons much easier.
+
+3. Repair step after decoding
+
+Greedy parsing may occasionally produce malformed outputs. We therefore added a
+light repair step to ensure exactly one root and valid head assignments before
+evaluation.
+
+4. Best-dev checkpointing
+
+M0p, M1, M2, M2b, and M3 save the best development checkpoint using dev LAS and
+dev UAS tie-break. M0 is the only exception because it was frozen before this
+mechanism existed.
+
+
+--------------------------------------------------------------------------------
+7.3 Practical Problems Solved
+--------------------------------------------------------------------------------
+
+Projective filtering
+
+To compare Arc-Eager and Arc-Standard fairly, we needed a projective control
+model. This led to M0p and to a reusable projective filtering pipeline.
+
+FastText loading
+
+The FastText Python interface can differ across installations. We therefore
+added safer loading checks and clear error messages for missing embedding files
+or unsupported FastText builds.
+
+Camembert subword alignment
+
+Contextual embeddings required alignment between CoNLL-U tokens and Camembert
+subword pieces. We solved this by tokenizing each full sentence, aligning
+subwords back to tokens, and pooling subword vectors into token-level
+representations.
+
+Contextual caching
+
+Without caching, M3 would be much too slow because the encoder would be called
+again at every parser step. We therefore cached sentence-level contextual
+embeddings and reused them across transitions.
+
+
+--------------------------------------------------------------------------------
+7.4 Frozen Results and Submission Structure
+--------------------------------------------------------------------------------
+
+The final project archive contains:
+
+- source code
+- tests
+- `README.md`
+- `report.txt`
+- frozen experiment outputs
+- final error analysis
+
+Large model binaries and checkpoints were removed from the cleaned submission
+archive. The frozen experiment folders keep the information that matters for the
+report:
+
+- configuration
+- final results
+- training log
+- test predictions
+- figures
+
+
+================================================================================
+8. User Manual
+================================================================================
+
+
+--------------------------------------------------------------------------------
+8.1 Data Placement
+--------------------------------------------------------------------------------
+
+Expected treebank files:
+
+- `data/fr_gsd-ud-train.conllu`
+- `data/fr_gsd-ud-dev.conllu`
+- `data/fr_gsd-ud-test.conllu`
+
+Expected FastText file for M2 and M2b:
+
+- `data/embeddings/cc.fr.300.bin`
+
+For M3, `camembert-base` must be available locally if the full model is rerun.
+However, the frozen M3 outputs are already included, so rerunning is optional.
+
+
+--------------------------------------------------------------------------------
+8.2 Main Commands
+--------------------------------------------------------------------------------
+
+Generic classical parser:
+
+Train:
+  python main.py --train data/fr_gsd-ud-train.conllu --dev data/fr_gsd-ud-dev.conllu --model model.pkl --epochs 10 --seed 0
+
+Test:
+  python main.py --test data/fr_gsd-ud-test.conllu --model model.pkl
+
+Write predictions:
+  python main.py --test data/fr_gsd-ud-test.conllu --model model.pkl --output predictions.conllu
+
+Experiment runners:
+
+  python run_m0_experiment.py
+  python run_m0p_projective_experiment.py
+  python run_m1_experiment.py
+  python run_m2_dense_experiment.py
+  python run_m2b_dense_rich_experiment.py
+  python run_m3_contextual_experiment.py
+  python analyze_errors.py
+
+Practical note:
+
+- `run_m3_contextual_experiment.py` is computationally heavy.
+- The generated results are already included in `experiments/`, so rerunning is
+  not required for submission.
+
+
+--------------------------------------------------------------------------------
+8.3 Online Help
+--------------------------------------------------------------------------------
+
+Main parser help:
+
+  python main.py --help
+
+Current output:
+
+usage: main.py [-h] [--train TRAIN] [--dev DEV] [--test TEST] [--model MODEL]
+               [--epochs EPOCHS] [--seed SEED] [--output OUTPUT]
+               [--checkpoint-dir CHECKPOINT_DIR]
+               [--transition-system {arc-eager,arc-standard}]
+               [--oracle {static}] [--features {sparse}] [--decoder {greedy}]
+
+Transition-based dependency parser for French
+
+options:
+  -h, --help            show this help message and exit
+  --train TRAIN         Path to the training file (CoNLL-U format)
+  --dev DEV             Path to the development file (CoNLL-U format)
+  --test TEST           Path to the test file (CoNLL-U format)
+  --model MODEL         Path to save/load the model (default: model.pkl)
+  --epochs EPOCHS       Number of training epochs (default: 10)
+  --seed SEED           Random seed used for shuffling training sentences
+                        (default: 0)
+  --output OUTPUT       Path to write predicted trees (CoNLL-U format)
+  --checkpoint-dir CHECKPOINT_DIR
+                        Optional directory for saving the best dev checkpoint
+                        during training
+  --transition-system {arc-eager,arc-standard}
+                        Transition system to use (default: arc-eager)
+  --oracle {static}     Oracle to use during training (default: static)
+  --features {sparse}   Feature extractor to use (default: sparse)
+  --decoder {greedy}    Decoder to use (default: greedy)
+
+Runner help:
+
+  python run_m0p_projective_experiment.py --help
+  usage: run_m0p_projective_experiment.py [-h]
+  Run the M0p Arc-Eager projective sparse experiment
+
+  python run_m2_dense_experiment.py --help
+  usage: run_m2_dense_experiment.py [-h]
+  Run the M2 Arc-Standard dense experiment
+
+  python run_m2b_dense_rich_experiment.py --help
+  usage: run_m2b_dense_rich_experiment.py [-h]
+  Run the M2b Arc-Standard dense-rich experiment
+
+  python run_m3_contextual_experiment.py --help
+  usage: run_m3_contextual_experiment.py [-h]
+  Run the M3 Arc-Standard contextual-rich experiment
+
+  python analyze_errors.py --help
+  usage: analyze_errors.py [-h]
+  Run cross-model error analysis over frozen parser outputs
+
+
+--------------------------------------------------------------------------------
+8.4 Where Outputs Are Stored
+--------------------------------------------------------------------------------
+
+The final frozen outputs are stored in:
+
+- `experiments/m0_arc_eager_static_sparse/`
+- `experiments/m0p_arc_eager_static_sparse_projective/`
+- `experiments/m1_arc_standard_static_sparse/`
+- `experiments/m2_arc_standard_static_dense/`
+- `experiments/m2b_arc_standard_dense_rich/`
+- `experiments/m3_arc_standard_contextual_rich/`
+- `experiments/error_analysis/`
+
+Each experiment folder contains the run documentation and the final test
+predictions. This keeps the code and experimental evidence clearly separated.
+
+
+================================================================================
+9. Discussion
+================================================================================
+
+The central research question of this project was:
+
+How do transition systems and feature representations affect the performance of
+a transition-based dependency parser for French?
+
+The experiments give a clear answer.
+
+First, the transition system matters. Arc-Standard is stronger than Arc-Eager
+even when both are trained on the same projective subset. This suggests that
+the more bottom-up behavior of Arc-Standard is a better fit for our greedy
+parser setup.
+
+Second, feature representation matters enormously. Minimal lexical embeddings
+alone are not a good replacement for sparse syntactic features. M2 showed this
+very clearly.
+
+Third, dense models become strong only when they include explicit syntactic
+information. M2b recovered a large amount of lost accuracy by adding POS
+embeddings, dependency-label embeddings, richer parser positions, and child
+information.
+
+Finally, contextual embeddings provide the strongest overall result. M3 improves
+both attachment and labeling quality, and the gains are especially visible on
+long-distance and structurally difficult dependencies.
+
+In short, both the transition system and the feature representation matter, but
+the best results come from combining a strong transition system with rich,
+context-sensitive features.
+
+
+================================================================================
+10. Limitations and Future Work
+================================================================================
+
+The project still has several limitations.
+
+- Only static oracles were used.
+- All models use greedy decoding.
+- We did not implement a dynamic oracle.
+- We did not implement beam search.
+- Camembert remained frozen; it was not fine-tuned.
+- The experiments use one French treebank only.
+- Most comparative models rely on projective filtering for training.
+
+These limitations suggest several natural future directions:
+
+- dynamic oracle training
+- beam search decoding
+- non-projective transition systems
+- fine-tuning the contextual encoder
+- evaluation on additional French treebanks or genres
+
+Among these, a dynamic oracle and beam search would be especially interesting,
+because both directly address the error-propagation weakness of greedy
+transition-based parsing.
+
+
+================================================================================
+11. Conclusion
+================================================================================
+
+This project implemented and compared several transition-based dependency
+parsers for French inside a common modular framework.
+
+The final conclusions are:
+
+- Projective filtering helps Arc-Eager, but does not remove the advantage of
+  Arc-Standard.
+- Arc-Standard is the better transition system in this study.
+- Minimal static word embeddings are not enough on their own.
+- Rich dense syntactic features are very effective and outperform the sparse
+  Arc-Standard baseline.
+- Frozen contextual embeddings provide the strongest overall model.
+
+The best system, M3, reaches 93.41 UAS and 90.51 LAS on the French GSD test
+set. The error analysis supports the same overall story: richer syntactic
+features and contextual information improve difficult attachments, reduce label
+confusions, and help especially with longer and more complex dependencies.
+
+
+================================================================================
+References
+================================================================================
+
+[1] Universal Dependencies. French GSD treebank and documentation.
+
+[2] Nivre, J. (2003). An Efficient Algorithm for Projective Dependency Parsing.
+    In Proceedings of IWPT 2003.
+
+[3] Chen, D. and Manning, C. (2014). A Fast and Accurate Dependency Parser
+    using Neural Networks. In Proceedings of EMNLP 2014.
+
+[4] Kulmizev, A., de Lhoneux, M., Stymne, S., and Smith, J. (2019). Deep
+    Contextualized Word Embeddings in Transition-Based and Graph-Based
+    Dependency Parsing: A Tale of Two Parsers Revisited. In Proceedings of
+    EMNLP-IJCNLP 2019.
+
+[5] Bojanowski, P., Grave, E., Joulin, A., and Mikolov, T. (2017). Enriching
+    Word Vectors with Subword Information. Transactions of the Association for
+    Computational Linguistics.
+
+[6] Martin, L., Muller, B., Ortiz Suarez, P. J., Dupont, Y., Romary, L.,
+    de la Clergerie, E., Seddah, D., and Sagot, B. (2020). Camembert: a Tasty
+    French Language Model. In Proceedings of ACL 2020.
+
+[7] Jurafsky, D. and Martin, J. H. Speech and Language Processing. Chapter on
+    dependency parsing.

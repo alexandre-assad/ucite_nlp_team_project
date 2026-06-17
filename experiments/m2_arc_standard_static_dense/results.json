@@ -1,0 +1,814 @@
+{
+  "dev": {
+    "uas": 80.86559726771367,
+    "las": 72.22642143277064,
+    "sentences": 1476,
+    "tokens": 35721
+  },
+  "test": {
+    "uas": 78.46660676849356,
+    "las": 69.74143955276031,
+    "sentences": 416,
+    "tokens": 10017
+  },
+  "train": {
+    "sentences": 13816,
+    "tokens": 332744
+  },
+  "efficiency": {
+    "training_time_seconds": 1805.170927286148,
+    "parsing_time_seconds": 5.635976552963257,
+    "test_sentences_per_second": 73.81152069933249,
+    "test_tokens_per_second": 1777.3317376086864
+  },
+  "epoch_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6377486532415966,
+      "train_accuracy": 80.89372009713173,
+      "correct_predictions": 538338,
+      "total_predictions": 665488,
+      "elapsed_seconds": 172.13332748413086,
+      "dev_uas": 75.56619355561155,
+      "dev_las": 65.81842613588645
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4549928159377897,
+      "train_accuracy": 85.04105258096314,
+      "correct_predictions": 565938,
+      "total_predictions": 665488,
+      "elapsed_seconds": 293.4288966655731,
+      "dev_uas": 78.06892304246801,
+      "dev_las": 68.74107667758462
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.41471375921485465,
+      "train_accuracy": 86.19103575120813,
+      "correct_predictions": 573591,
+      "total_predictions": 665488,
+      "elapsed_seconds": 359.05110573768616,
+      "dev_uas": 77.85896251504717,
+      "dev_las": 69.02662299487696
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.3889906082133143,
+      "train_accuracy": 86.95348375928641,
+      "correct_predictions": 578665,
+      "total_predictions": 665488,
+      "elapsed_seconds": 121.94657850265503,
+      "dev_uas": 79.21390778533636,
+      "dev_las": 70.34517510707987
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.36846147696846876,
+      "train_accuracy": 87.53591349505926,
+      "correct_predictions": 582541,
+      "total_predictions": 665488,
+      "elapsed_seconds": 74.73187232017517,
+      "dev_uas": 79.65062568237171,
+      "dev_las": 70.91906721536351
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3528369623501583,
+      "train_accuracy": 88.01706416945159,
+      "correct_predictions": 585743,
+      "total_predictions": 665488,
+      "elapsed_seconds": 76.93534684181213,
+      "dev_uas": 80.33649673861314,
+      "dev_las": 71.65252932448699
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.3394059365041538,
+      "train_accuracy": 88.42834130743154,
+      "correct_predictions": 588480,
+      "total_predictions": 665488,
+      "elapsed_seconds": 78.65312790870667,
+      "dev_uas": 80.29170515943002,
+      "dev_las": 71.92407827328462
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.327139775903147,
+      "train_accuracy": 88.81001610847979,
+      "correct_predictions": 591020,
+      "total_predictions": 665488,
+      "elapsed_seconds": 62.13028287887573,
+      "dev_uas": 79.9445704207609,
+      "dev_las": 71.33058984910838
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.316419442951374,
+      "train_accuracy": 89.15532661745966,
+      "correct_predictions": 593318,
+      "total_predictions": 665488,
+      "elapsed_seconds": 50.55896043777466,
+      "dev_uas": 80.86559726771367,
+      "dev_las": 72.22642143277064
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.30652984498489694,
+      "train_accuracy": 89.44473829730964,
+      "correct_predictions": 595244,
+      "total_predictions": 665488,
+      "elapsed_seconds": 51.23012924194336,
+      "dev_uas": 79.96416673665351,
+      "dev_las": 71.66092774558383
+    }
+  ],
+  "transition_distribution": {
+    "SHIFT": 332744,
+    "LEFT-ARC": 182153,
+    "RIGHT-ARC": 150591
+  },
+  "analysis": {
+    "las_by_label": [
+      {
+        "label": "det",
+        "support": 1459,
+        "correct": 1425,
+        "las": 97.66963673749143
+      },
+      {
+        "label": "case",
+        "support": 1309,
+        "correct": 1268,
+        "las": 96.86783804430863
+      },
+      {
+        "label": "punct",
+        "support": 1186,
+        "correct": 743,
+        "las": 62.64755480607083
+      },
+      {
+        "label": "nmod",
+        "support": 856,
+        "correct": 590,
+        "las": 68.92523364485982
+      },
+      {
+        "label": "nsubj",
+        "support": 519,
+        "correct": 321,
+        "las": 61.84971098265896
+      },
+      {
+        "label": "amod",
+        "support": 485,
+        "correct": 409,
+        "las": 84.3298969072165
+      },
+      {
+        "label": "advmod",
+        "support": 462,
+        "correct": 339,
+        "las": 73.37662337662337
+      },
+      {
+        "label": "root",
+        "support": 416,
+        "correct": 250,
+        "las": 60.09615384615385
+      },
+      {
+        "label": "obl:mod",
+        "support": 348,
+        "correct": 147,
+        "las": 42.241379310344826
+      },
+      {
+        "label": "obj",
+        "support": 344,
+        "correct": 153,
+        "las": 44.47674418604651
+      },
+      {
+        "label": "conj",
+        "support": 319,
+        "correct": 67,
+        "las": 21.003134796238246
+      },
+      {
+        "label": "cc",
+        "support": 256,
+        "correct": 208,
+        "las": 81.25
+      },
+      {
+        "label": "mark",
+        "support": 244,
+        "correct": 168,
+        "las": 68.85245901639344
+      },
+      {
+        "label": "obl:arg",
+        "support": 187,
+        "correct": 55,
+        "las": 29.41176470588235
+      },
+      {
+        "label": "cop",
+        "support": 153,
+        "correct": 132,
+        "las": 86.27450980392157
+      },
+      {
+        "label": "aux:tense",
+        "support": 132,
+        "correct": 113,
+        "las": 85.60606060606061
+      },
+      {
+        "label": "flat:name",
+        "support": 122,
+        "correct": 76,
+        "las": 62.295081967213115
+      },
+      {
+        "label": "xcomp",
+        "support": 115,
+        "correct": 78,
+        "las": 67.82608695652173
+      },
+      {
+        "label": "appos",
+        "support": 112,
+        "correct": 23,
+        "las": 20.535714285714285
+      },
+      {
+        "label": "nummod",
+        "support": 110,
+        "correct": 99,
+        "las": 90.0
+      },
+      {
+        "label": "advcl",
+        "support": 109,
+        "correct": 8,
+        "las": 7.339449541284404
+      },
+      {
+        "label": "acl",
+        "support": 107,
+        "correct": 37,
+        "las": 34.57943925233645
+      },
+      {
+        "label": "fixed",
+        "support": 105,
+        "correct": 75,
+        "las": 71.42857142857143
+      },
+      {
+        "label": "acl:relcl",
+        "support": 70,
+        "correct": 13,
+        "las": 18.571428571428573
+      },
+      {
+        "label": "nsubj:pass",
+        "support": 65,
+        "correct": 13,
+        "las": 20.0
+      },
+      {
+        "label": "aux:pass",
+        "support": 62,
+        "correct": 59,
+        "las": 95.16129032258064
+      },
+      {
+        "label": "ccomp",
+        "support": 55,
+        "correct": 22,
+        "las": 40.0
+      },
+      {
+        "label": "expl:subj",
+        "support": 46,
+        "correct": 21,
+        "las": 45.65217391304348
+      },
+      {
+        "label": "parataxis",
+        "support": 37,
+        "correct": 1,
+        "las": 2.7027027027027026
+      },
+      {
+        "label": "obl:agent",
+        "support": 33,
+        "correct": 8,
+        "las": 24.242424242424242
+      },
+      {
+        "label": "iobj",
+        "support": 32,
+        "correct": 12,
+        "las": 37.5
+      },
+      {
+        "label": "expl:pv",
+        "support": 29,
+        "correct": 17,
+        "las": 58.62068965517241
+      },
+      {
+        "label": "obj:lvc",
+        "support": 17,
+        "correct": 9,
+        "las": 52.94117647058823
+      },
+      {
+        "label": "parataxis:insert",
+        "support": 13,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "expl:comp",
+        "support": 13,
+        "correct": 9,
+        "las": 69.23076923076923
+      },
+      {
+        "label": "aux:caus",
+        "support": 12,
+        "correct": 9,
+        "las": 75.0
+      },
+      {
+        "label": "orphan",
+        "support": 11,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "csubj",
+        "support": 10,
+        "correct": 2,
+        "las": 20.0
+      },
+      {
+        "label": "expl:pass",
+        "support": 10,
+        "correct": 5,
+        "las": 50.0
+      },
+      {
+        "label": "advcl:cleft",
+        "support": 8,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "dislocated",
+        "support": 8,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "obj:agent",
+        "support": 7,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "discourse",
+        "support": 7,
+        "correct": 2,
+        "las": 28.571428571428573
+      },
+      {
+        "label": "nsubj:caus",
+        "support": 4,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "flat:foreign",
+        "support": 3,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "csubj:pass",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "goeswith",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "flat",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "iobj:agent",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "nsubj:outer",
+        "support": 1,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "obl",
+        "support": 1,
+        "correct": 0,
+        "las": 0.0
+      }
+    ],
+    "scores_by_sentence_length": [
+      {
+        "bucket": "1-10",
+        "sentences": 57,
+        "tokens": 429,
+        "uas": 85.08158508158508,
+        "las": 75.05827505827506
+      },
+      {
+        "bucket": "11-20",
+        "sentences": 132,
+        "tokens": 2019,
+        "uas": 78.94997523526499,
+        "las": 70.827142149579
+      },
+      {
+        "bucket": "21-30",
+        "sentences": 116,
+        "tokens": 2891,
+        "uas": 78.69249394673123,
+        "las": 68.97267381528883
+      },
+      {
+        "bucket": "31-40",
+        "sentences": 68,
+        "tokens": 2354,
+        "uas": 78.97196261682242,
+        "las": 70.64570943075616
+      },
+      {
+        "bucket": "41+",
+        "sentences": 43,
+        "tokens": 2324,
+        "uas": 76.03270223752152,
+        "las": 67.85714285714286
+      }
+    ],
+    "root_accuracy": {
+      "correct": 250,
+      "total": 416,
+      "accuracy": 60.09615384615385
+    },
+    "label_confusion_matrix": {
+      "labels": [
+        "det",
+        "case",
+        "punct",
+        "nmod",
+        "nsubj",
+        "amod",
+        "advmod",
+        "root",
+        "obl:mod",
+        "obj",
+        "conj",
+        "cc"
+      ],
+      "matrix": [
+        [
+          1437,
+          4,
+          0,
+          0,
+          7,
+          4,
+          1,
+          0,
+          0,
+          3,
+          0,
+          0
+        ],
+        [
+          0,
+          1287,
+          0,
+          0,
+          1,
+          0,
+          11,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1183,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2
+        ],
+        [
+          1,
+          1,
+          0,
+          665,
+          23,
+          21,
+          2,
+          7,
+          50,
+          15,
+          27,
+          1
+        ],
+        [
+          7,
+          0,
+          0,
+          34,
+          368,
+          2,
+          2,
+          34,
+          15,
+          23,
+          6,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          16,
+          4,
+          435,
+          0,
+          1,
+          3,
+          2,
+          16,
+          0
+        ],
+        [
+          4,
+          22,
+          0,
+          2,
+          2,
+          5,
+          389,
+          1,
+          4,
+          3,
+          2,
+          6
+        ],
+        [
+          0,
+          1,
+          0,
+          17,
+          12,
+          18,
+          5,
+          250,
+          1,
+          2,
+          34,
+          0
+        ],
+        [
+          2,
+          4,
+          0,
+          45,
+          38,
+          2,
+          2,
+          18,
+          168,
+          34,
+          10,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          9,
+          30,
+          1,
+          7,
+          0,
+          92,
+          158,
+          4,
+          0
+        ],
+        [
+          2,
+          2,
+          0,
+          70,
+          7,
+          26,
+          4,
+          15,
+          19,
+          11,
+          106,
+          1
+        ],
+        [
+          0,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          249
+        ]
+      ],
+      "support": {
+        "det": 1459,
+        "case": 1309,
+        "punct": 1186,
+        "nmod": 856,
+        "nsubj": 519,
+        "amod": 485,
+        "advmod": 462,
+        "root": 416,
+        "obl:mod": 348,
+        "obj": 344,
+        "conj": 319,
+        "cc": 256
+      }
+    },
+    "malformed_parse_stats_before_repair": {
+      "total_sentences": 416,
+      "zero_root_sentences_before_repair": 0,
+      "multi_root_sentences_before_repair": 1,
+      "unattached_sentences_before_repair": 0,
+      "malformed_sentences_before_repair": 1,
+      "repaired_sentences": 0,
+      "correct_root_sentences_before_repair": 249,
+      "correct_root_sentences_after_repair": 250
+    },
+    "parse_detail_sample": [
+      {
+        "terminal_reached": true,
+        "num_steps": 58,
+        "num_arcs": 29,
+        "pre_repair_root_ids": [
+          2
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          2
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 32,
+        "num_arcs": 16,
+        "pre_repair_root_ids": [
+          2
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          2
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 120,
+        "num_arcs": 60,
+        "pre_repair_root_ids": [
+          6
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          6
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 84,
+        "num_arcs": 42,
+        "pre_repair_root_ids": [
+          1
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          1
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 76,
+        "num_arcs": 38,
+        "pre_repair_root_ids": [
+          18
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          18
+        ],
+        "post_repair_root_count": 1
+      }
+    ]
+  },
+  "model_id": "M2",
+  "description": "Arc-Standard + Static Oracle + Static Dense Embeddings + MLP Classifier + Greedy Decoding",
+  "transition_system": "arc-standard",
+  "oracle": "static",
+  "features": "static dense embeddings",
+  "classifier": "mlp",
+  "decoder": "greedy",
+  "epochs": 10,
+  "selected_epoch": 9,
+  "seed": 0,
+  "train_sentences_original": 14450,
+  "train_sentences_kept": 13816,
+  "train_sentences_filtered": 634,
+  "train_tokens": 332744,
+  "dev_sentences": 1476,
+  "test_sentences": 416,
+  "dev_tokens": 35721,
+  "test_tokens": 10017,
+  "dev_uas": 80.87,
+  "dev_las": 72.23,
+  "test_uas": 78.47,
+  "test_las": 69.74,
+  "embedding": {
+    "source": "fasttext_bin",
+    "path": "data/embeddings/cc.fr.300.bin",
+    "embedding_dim": 300,
+    "oov_strategy": "fasttext_subword_vector",
+    "seed": 0
+  },
+  "paths": {
+    "train_path": "data/fr_gsd-ud-train.conllu",
+    "dev_path": "data/fr_gsd-ud-dev.conllu",
+    "test_path": "data/fr_gsd-ud-test.conllu",
+    "output_dir": "experiments/m2_arc_standard_static_dense"
+  },
+  "selection_metric": {
+    "primary": "dev_las",
+    "tie_breaker": "dev_uas"
+  }
+}

@@ -1,0 +1,67 @@
+================================================================================
+Running M1 Arc-Standard baseline experiment
+================================================================================
+{
+  "model_id": "M1",
+  "description": "Arc-Standard + Static Oracle + Sparse Features + Averaged Perceptron + Greedy Decoding",
+  "transition_system": "arc-standard",
+  "oracle": "static",
+  "features": "sparse handcrafted",
+  "classifier": "averaged perceptron",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu"
+}
+
+Train sentences kept for M1: 13816 / 14450
+Dev sentences:   1476
+Test sentences:  416
+Train tokens:    332744
+Dev tokens:      35721
+Test tokens:     10017
+Labels:          56
+
+Training on 13816 sentences for 10 epochs
+Using 56 labels: ['acl', 'acl:relcl', 'advcl', 'advcl:cleft', 'advmod']...
+------------------------------------------------------------
+  Epoch 1: processed 2000/13816 sentences  Epoch 1: processed 4000/13816 sentences  Epoch 1: processed 6000/13816 sentences  Epoch 1: processed 8000/13816 sentences  Epoch 1: processed 10000/13816 sentences  Epoch 1: processed 12000/13816 sentences  Epoch 1: train accuracy = 89.59% (596184/665488) [458.1s]
+          dev UAS = 88.24%, LAS = 84.53%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 2: processed 2000/13816 sentences  Epoch 2: processed 4000/13816 sentences  Epoch 2: processed 6000/13816 sentences  Epoch 2: processed 8000/13816 sentences  Epoch 2: processed 10000/13816 sentences  Epoch 2: processed 12000/13816 sentences  Epoch 2: train accuracy = 92.65% (616576/665488) [428.5s]
+          dev UAS = 88.95%, LAS = 85.46%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 3: processed 2000/13816 sentences  Epoch 3: processed 4000/13816 sentences  Epoch 3: processed 6000/13816 sentences  Epoch 3: processed 8000/13816 sentences  Epoch 3: processed 10000/13816 sentences  Epoch 3: processed 12000/13816 sentences  Epoch 3: train accuracy = 94.02% (625696/665488) [470.9s]
+          dev UAS = 89.26%, LAS = 85.83%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 4: processed 2000/13816 sentences  Epoch 4: processed 4000/13816 sentences  Epoch 4: processed 6000/13816 sentences  Epoch 4: processed 8000/13816 sentences  Epoch 4: processed 10000/13816 sentences  Epoch 4: processed 12000/13816 sentences  Epoch 4: train accuracy = 94.93% (631716/665488) [433.4s]
+          dev UAS = 89.58%, LAS = 86.21%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 5: processed 2000/13816 sentences  Epoch 5: processed 4000/13816 sentences  Epoch 5: processed 6000/13816 sentences  Epoch 5: processed 8000/13816 sentences  Epoch 5: processed 10000/13816 sentences  Epoch 5: processed 12000/13816 sentences  Epoch 5: train accuracy = 95.64% (636484/665488) [439.8s]
+          dev UAS = 89.69%, LAS = 86.32%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 6: processed 2000/13816 sentences  Epoch 6: processed 4000/13816 sentences  Epoch 6: processed 6000/13816 sentences  Epoch 6: processed 8000/13816 sentences  Epoch 6: processed 10000/13816 sentences  Epoch 6: processed 12000/13816 sentences  Epoch 6: train accuracy = 96.24% (640495/665488) [480.9s]
+          dev UAS = 89.75%, LAS = 86.41%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 7: processed 2000/13816 sentences  Epoch 7: processed 4000/13816 sentences  Epoch 7: processed 6000/13816 sentences  Epoch 7: processed 8000/13816 sentences  Epoch 7: processed 10000/13816 sentences  Epoch 7: processed 12000/13816 sentences  Epoch 7: train accuracy = 96.68% (643389/665488) [1047.9s]
+          dev UAS = 89.73%, LAS = 86.40%
+  Epoch 8: processed 2000/13816 sentences  Epoch 8: processed 4000/13816 sentences  Epoch 8: processed 6000/13816 sentences  Epoch 8: processed 8000/13816 sentences  Epoch 8: processed 10000/13816 sentences  Epoch 8: processed 12000/13816 sentences  Epoch 8: train accuracy = 97.06% (645907/665488) [971.1s]
+          dev UAS = 89.79%, LAS = 86.46%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+  Epoch 9: processed 2000/13816 sentences  Epoch 9: processed 4000/13816 sentences  Epoch 9: processed 6000/13816 sentences  Epoch 9: processed 8000/13816 sentences  Epoch 9: processed 10000/13816 sentences  Epoch 9: processed 12000/13816 sentences  Epoch 9: train accuracy = 97.40% (648188/665488) [774.1s]
+          dev UAS = 89.76%, LAS = 86.43%
+  Epoch 10: processed 2000/13816 sentences  Epoch 10: processed 4000/13816 sentences  Epoch 10: processed 6000/13816 sentences  Epoch 10: processed 8000/13816 sentences  Epoch 10: processed 10000/13816 sentences  Epoch 10: processed 12000/13816 sentences  Epoch 10: train accuracy = 97.63% (649742/665488) [906.1s]
+          dev UAS = 89.76%, LAS = 86.49%
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\checkpoints\best_model.pkl
+------------------------------------------------------------
+Averaging weights...
+Training complete!
+Model saved to C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\model_final.pkl
+Model loaded from C:\Users\jr_ze\Desktop\NLP Project\experiments\m1_arc_standard_static_sparse\model_best_dev.pkl
+
+Final M1 results (best-dev checkpoint)
+  Selected epoch: 10
+  Dev UAS/LAS:  89.76 / 86.49
+  Test UAS/LAS: 87.69 / 83.69

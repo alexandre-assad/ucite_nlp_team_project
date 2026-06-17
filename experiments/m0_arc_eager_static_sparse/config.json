@@ -1,0 +1,14 @@
+{
+  "model_id": "M0",
+  "description": "Arc-Eager + Static Oracle + Sparse Features + Averaged Perceptron + Greedy Decoding",
+  "transition_system": "arc-eager",
+  "oracle": "static",
+  "features": "sparse handcrafted features",
+  "classifier": "averaged perceptron",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu"
+}

@@ -1,0 +1,6 @@
+model_id,transition_system,oracle,features,classifier,decoder,train_sentences,selected_epoch,dev_uas,dev_las,test_uas,test_las
+M0,arc-eager,static,sparse handcrafted,averaged perceptron,greedy,14450,10,86.86,81.64,83.76,77.92
+M1,arc-standard,static,sparse handcrafted,averaged perceptron,greedy,13816,10,89.76,86.49,87.69,83.69
+M2,arc-standard,static,static dense embeddings,mlp,greedy,13816,9,80.87,72.23,78.47,69.74
+M2b,arc-standard,static,dense rich embeddings,mlp,greedy,13816,10,91.56,88.31,88.90,85.12
+M3,arc-standard,static,contextual rich embeddings,mlp,greedy,13816,8,95.09,92.76,93.41,90.51

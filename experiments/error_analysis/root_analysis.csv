@@ -1,0 +1,7 @@
+model_id,gold_root_count,predicted_root_count,correct_root_count,root_precision,root_recall,root_f1,wrong_root_attachments
+M0,416,416,290,69.71,69.71,69.71,126
+M0p,416,416,298,71.63,71.63,71.63,118
+M1,416,416,337,81.01,81.01,81.01,79
+M2,416,416,250,60.1,60.1,60.1,166
+M2b,416,416,359,86.3,86.3,86.3,57
+M3,416,416,392,94.23,94.23,94.23,24

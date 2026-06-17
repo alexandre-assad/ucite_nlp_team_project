@@ -1,0 +1,31 @@
+================================================================================
+Running M0p Arc-Eager projective sparse baseline experiment
+================================================================================
+{
+  "model_id": "M0p",
+  "description": "Arc-Eager + Static Oracle + Sparse Handcrafted Features + Averaged Perceptron + Greedy Decoding + Projective Training Filter",
+  "transition_system": "arc-eager",
+  "oracle": "static",
+  "features": "sparse handcrafted",
+  "classifier": "averaged perceptron",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu",
+  "projective_filter": true,
+  "output_dir": "experiments/m0p_arc_eager_static_sparse_projective"
+}
+
+Train sentences kept for M0p: 13816 / 14450
+Dev sentences:   1476
+Test sentences:  416
+Train tokens:    332744
+Dev tokens:      35721
+Test tokens:     10017
+Labels:          56
+
+Training on 13816 sentences for 10 epochs
+Using 56 labels: ['acl', 'acl:relcl', 'advcl', 'advcl:cleft', 'advmod']...
+------------------------------------------------------------

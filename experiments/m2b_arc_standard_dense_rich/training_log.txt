@@ -1,0 +1,92 @@
+================================================================================
+Running M2b Arc-Standard dense-rich experiment
+================================================================================
+{
+  "model_id": "M2b",
+  "description": "Arc-Standard + Static Oracle + FastText Word Embeddings + POS Embeddings + Dependency Label Embeddings + MLP + Greedy Decoding",
+  "transition_system": "arc-standard",
+  "oracle": "static",
+  "features": "dense rich embeddings",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu",
+  "output_dir": "experiments/m2b_arc_standard_dense_rich",
+  "embedding": {
+    "source": "fasttext_bin",
+    "path": "data/embeddings/cc.fr.300.bin",
+    "embedding_dim": 300,
+    "oov_strategy": "fasttext_subword_vector",
+    "seed": 0
+  },
+  "classifier": {
+    "type": "mlp",
+    "pos_embedding_dim": 32,
+    "label_embedding_dim": 32,
+    "hidden_dim": 512,
+    "dropout": 0.2
+  },
+  "training": {
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "AdamW",
+    "loss": "CrossEntropyLoss",
+    "use_gpu_if_available": true
+  }
+}
+
+Train sentences kept for M2b: 13816 / 14450
+Dev sentences:   1476
+Test sentences:  416
+Train tokens:    332744
+Dev tokens:      35721
+Test tokens:     10017
+Labels:          56
+POS vocab:       19
+Label vocab:     57
+Embedding mode:  fasttext_bin
+Embedding dim:   300
+Device:          cpu
+
+  Epoch 1: train loss = 0.2364, train accuracy = 92.20% [277.6s]
+          dev UAS = 88.61%, LAS = 84.74%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 2: train loss = 0.1547, train accuracy = 94.45% [142.3s]
+          dev UAS = 89.73%, LAS = 86.05%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 3: train loss = 0.1340, train accuracy = 95.10% [145.0s]
+          dev UAS = 90.31%, LAS = 86.75%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 4: train loss = 0.1185, train accuracy = 95.62% [186.1s]
+          dev UAS = 90.81%, LAS = 87.45%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 5: train loss = 0.1063, train accuracy = 96.04% [246.7s]
+          dev UAS = 91.25%, LAS = 87.81%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 6: train loss = 0.0963, train accuracy = 96.39% [173.3s]
+          dev UAS = 91.07%, LAS = 87.80%
+  Epoch 7: train loss = 0.0874, train accuracy = 96.71% [150.4s]
+          dev UAS = 91.20%, LAS = 87.96%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 8: train loss = 0.0795, train accuracy = 96.98% [159.9s]
+          dev UAS = 91.22%, LAS = 87.89%
+  Epoch 9: train loss = 0.0731, train accuracy = 97.24% [161.2s]
+          dev UAS = 91.47%, LAS = 88.28%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+  Epoch 10: train loss = 0.0663, train accuracy = 97.49% [163.4s]
+          dev UAS = 91.56%, LAS = 88.31%
+Model saved to experiments/m2b_arc_standard_dense_rich/checkpoints/best_model.pt
+Model saved to experiments/m2b_arc_standard_dense_rich/model_final.pt
+Model loaded from experiments/m2b_arc_standard_dense_rich/model_best_dev.pt
+
+Final M2b results (best-dev checkpoint)
+  Projective training sentences kept: 13816 / 14450
+  Generated transition examples: 665488
+  Selected epoch: 10
+  Dev UAS/LAS:  91.56 / 88.31
+  Test UAS/LAS: 88.90 / 85.12
+  Training time: 2275.03s
+  Parsing time:  11.55s

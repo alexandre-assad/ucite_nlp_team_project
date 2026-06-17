@@ -1,0 +1,853 @@
+{
+  "dev": {
+    "uas": 88.03504941071078,
+    "las": 82.9568041208253,
+    "sentences": 1476,
+    "tokens": 35721
+  },
+  "test": {
+    "uas": 85.16521912748328,
+    "las": 79.50484176899272,
+    "sentences": 416,
+    "tokens": 10017
+  },
+  "train": {
+    "sentences": 13816,
+    "tokens": 332744
+  },
+  "efficiency": {
+    "training_time_seconds": 6991.283432483673,
+    "parsing_time_seconds": 10.105817794799805,
+    "test_sentences_per_second": 41.164407319322834,
+    "test_tokens_per_second": 991.211221436675
+  },
+  "epoch_history": [
+    {
+      "epoch": 1,
+      "train_accuracy": 86.96610607554156,
+      "correct_predictions": 578749,
+      "total_predictions": 665488,
+      "elapsed_seconds": 736.0456876754761,
+      "dev_uas": 86.7304946670026,
+      "dev_las": 80.91878726799362,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 2,
+      "train_accuracy": 90.66489553530643,
+      "correct_predictions": 603364,
+      "total_predictions": 665488,
+      "elapsed_seconds": 866.2573912143707,
+      "dev_uas": 87.40516782844824,
+      "dev_las": 81.87340779933373,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 3,
+      "train_accuracy": 92.47048782247013,
+      "correct_predictions": 615380,
+      "total_predictions": 665488,
+      "elapsed_seconds": 338.8655424118042,
+      "dev_uas": 87.69351361943954,
+      "dev_las": 82.38291201254164,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 4,
+      "train_accuracy": 93.78155579063785,
+      "correct_predictions": 624105,
+      "total_predictions": 665488,
+      "elapsed_seconds": 305.456826210022,
+      "dev_uas": 87.92586993645195,
+      "dev_las": 82.70765096161922,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 5,
+      "train_accuracy": 94.70884523838146,
+      "correct_predictions": 630276,
+      "total_predictions": 665488,
+      "elapsed_seconds": 292.97030425071716,
+      "dev_uas": 87.99585677892556,
+      "dev_las": 82.83362727807172,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 6,
+      "train_accuracy": 95.42681460822735,
+      "correct_predictions": 635054,
+      "total_predictions": 665488,
+      "elapsed_seconds": 707.2982008457184,
+      "dev_uas": 88.03224993701184,
+      "dev_las": 82.87841885725483,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 7,
+      "train_accuracy": 96.01525497078836,
+      "correct_predictions": 638970,
+      "total_predictions": 665488,
+      "elapsed_seconds": 514.333545923233,
+      "dev_uas": 88.02385151591501,
+      "dev_las": 82.89801517314744,
+      "oracle_transition_counts": {
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591,
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153
+      }
+    },
+    {
+      "epoch": 8,
+      "train_accuracy": 96.45793763373645,
+      "correct_predictions": 641916,
+      "total_predictions": 665488,
+      "elapsed_seconds": 514.9496695995331,
+      "dev_uas": 88.03504941071078,
+      "dev_las": 82.9568041208253,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 9,
+      "train_accuracy": 96.84246748250908,
+      "correct_predictions": 644475,
+      "total_predictions": 665488,
+      "elapsed_seconds": 1010.0054314136505,
+      "dev_uas": 87.99585677892556,
+      "dev_las": 82.93720780493268,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    },
+    {
+      "epoch": 10,
+      "train_accuracy": 97.19964897939558,
+      "correct_predictions": 646852,
+      "total_predictions": 665488,
+      "elapsed_seconds": 1018.1156842708588,
+      "dev_uas": 88.00145572632346,
+      "dev_las": 82.89241622574956,
+      "oracle_transition_counts": {
+        "SHIFT": 182153,
+        "LEFT-ARC": 182153,
+        "RIGHT-ARC": 150591,
+        "REDUCE": 150591
+      }
+    }
+  ],
+  "transition_distribution": {
+    "SHIFT": 1821530,
+    "LEFT-ARC": 1821530,
+    "RIGHT-ARC": 1505910,
+    "REDUCE": 1505910
+  },
+  "analysis": {
+    "las_by_label": [
+      {
+        "label": "det",
+        "support": 1459,
+        "correct": 1451,
+        "las": 99.45167923235093
+      },
+      {
+        "label": "case",
+        "support": 1309,
+        "correct": 1292,
+        "las": 98.7012987012987
+      },
+      {
+        "label": "punct",
+        "support": 1186,
+        "correct": 844,
+        "las": 71.16357504215851
+      },
+      {
+        "label": "nmod",
+        "support": 856,
+        "correct": 663,
+        "las": 77.45327102803738
+      },
+      {
+        "label": "nsubj",
+        "support": 519,
+        "correct": 397,
+        "las": 76.4932562620424
+      },
+      {
+        "label": "amod",
+        "support": 485,
+        "correct": 462,
+        "las": 95.25773195876289
+      },
+      {
+        "label": "advmod",
+        "support": 462,
+        "correct": 397,
+        "las": 85.93073593073593
+      },
+      {
+        "label": "root",
+        "support": 416,
+        "correct": 298,
+        "las": 71.63461538461539
+      },
+      {
+        "label": "obl:mod",
+        "support": 348,
+        "correct": 186,
+        "las": 53.44827586206897
+      },
+      {
+        "label": "obj",
+        "support": 344,
+        "correct": 269,
+        "las": 78.19767441860465
+      },
+      {
+        "label": "conj",
+        "support": 319,
+        "correct": 118,
+        "las": 36.990595611285265
+      },
+      {
+        "label": "cc",
+        "support": 256,
+        "correct": 227,
+        "las": 88.671875
+      },
+      {
+        "label": "mark",
+        "support": 244,
+        "correct": 218,
+        "las": 89.34426229508196
+      },
+      {
+        "label": "obl:arg",
+        "support": 187,
+        "correct": 96,
+        "las": 51.336898395721924
+      },
+      {
+        "label": "cop",
+        "support": 153,
+        "correct": 139,
+        "las": 90.84967320261438
+      },
+      {
+        "label": "aux:tense",
+        "support": 132,
+        "correct": 127,
+        "las": 96.21212121212122
+      },
+      {
+        "label": "flat:name",
+        "support": 122,
+        "correct": 112,
+        "las": 91.80327868852459
+      },
+      {
+        "label": "xcomp",
+        "support": 115,
+        "correct": 83,
+        "las": 72.17391304347827
+      },
+      {
+        "label": "appos",
+        "support": 112,
+        "correct": 39,
+        "las": 34.82142857142857
+      },
+      {
+        "label": "nummod",
+        "support": 110,
+        "correct": 105,
+        "las": 95.45454545454545
+      },
+      {
+        "label": "advcl",
+        "support": 109,
+        "correct": 18,
+        "las": 16.513761467889907
+      },
+      {
+        "label": "acl",
+        "support": 107,
+        "correct": 53,
+        "las": 49.532710280373834
+      },
+      {
+        "label": "fixed",
+        "support": 105,
+        "correct": 72,
+        "las": 68.57142857142857
+      },
+      {
+        "label": "acl:relcl",
+        "support": 70,
+        "correct": 25,
+        "las": 35.714285714285715
+      },
+      {
+        "label": "nsubj:pass",
+        "support": 65,
+        "correct": 39,
+        "las": 60.0
+      },
+      {
+        "label": "aux:pass",
+        "support": 62,
+        "correct": 60,
+        "las": 96.7741935483871
+      },
+      {
+        "label": "ccomp",
+        "support": 55,
+        "correct": 28,
+        "las": 50.90909090909091
+      },
+      {
+        "label": "expl:subj",
+        "support": 46,
+        "correct": 29,
+        "las": 63.04347826086956
+      },
+      {
+        "label": "parataxis",
+        "support": 37,
+        "correct": 3,
+        "las": 8.108108108108109
+      },
+      {
+        "label": "obl:agent",
+        "support": 33,
+        "correct": 14,
+        "las": 42.42424242424242
+      },
+      {
+        "label": "iobj",
+        "support": 32,
+        "correct": 24,
+        "las": 75.0
+      },
+      {
+        "label": "expl:pv",
+        "support": 29,
+        "correct": 21,
+        "las": 72.41379310344827
+      },
+      {
+        "label": "obj:lvc",
+        "support": 17,
+        "correct": 9,
+        "las": 52.94117647058823
+      },
+      {
+        "label": "parataxis:insert",
+        "support": 13,
+        "correct": 4,
+        "las": 30.76923076923077
+      },
+      {
+        "label": "expl:comp",
+        "support": 13,
+        "correct": 10,
+        "las": 76.92307692307692
+      },
+      {
+        "label": "aux:caus",
+        "support": 12,
+        "correct": 12,
+        "las": 100.0
+      },
+      {
+        "label": "orphan",
+        "support": 11,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "csubj",
+        "support": 10,
+        "correct": 1,
+        "las": 10.0
+      },
+      {
+        "label": "expl:pass",
+        "support": 10,
+        "correct": 7,
+        "las": 70.0
+      },
+      {
+        "label": "advcl:cleft",
+        "support": 8,
+        "correct": 1,
+        "las": 12.5
+      },
+      {
+        "label": "dislocated",
+        "support": 8,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "obj:agent",
+        "support": 7,
+        "correct": 2,
+        "las": 28.571428571428573
+      },
+      {
+        "label": "discourse",
+        "support": 7,
+        "correct": 3,
+        "las": 42.857142857142854
+      },
+      {
+        "label": "nsubj:caus",
+        "support": 4,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "flat:foreign",
+        "support": 3,
+        "correct": 3,
+        "las": 100.0
+      },
+      {
+        "label": "csubj:pass",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "goeswith",
+        "support": 2,
+        "correct": 2,
+        "las": 100.0
+      },
+      {
+        "label": "flat",
+        "support": 2,
+        "correct": 1,
+        "las": 50.0
+      },
+      {
+        "label": "iobj:agent",
+        "support": 2,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "nsubj:outer",
+        "support": 1,
+        "correct": 0,
+        "las": 0.0
+      },
+      {
+        "label": "obl",
+        "support": 1,
+        "correct": 0,
+        "las": 0.0
+      }
+    ],
+    "scores_by_sentence_length": [
+      {
+        "bucket": "1-10",
+        "sentences": 57,
+        "tokens": 429,
+        "uas": 88.1118881118881,
+        "las": 83.21678321678321
+      },
+      {
+        "bucket": "11-20",
+        "sentences": 132,
+        "tokens": 2019,
+        "uas": 87.17186726102031,
+        "las": 82.02080237741457
+      },
+      {
+        "bucket": "21-30",
+        "sentences": 116,
+        "tokens": 2891,
+        "uas": 85.99100657212037,
+        "las": 79.66101694915254
+      },
+      {
+        "bucket": "31-40",
+        "sentences": 68,
+        "tokens": 2354,
+        "uas": 85.04672897196262,
+        "las": 79.26932880203908
+      },
+      {
+        "bucket": "41+",
+        "sentences": 43,
+        "tokens": 2324,
+        "uas": 81.97074010327023,
+        "las": 76.67814113597247
+      }
+    ],
+    "root_accuracy": {
+      "correct": 298,
+      "total": 416,
+      "accuracy": 71.63461538461539
+    },
+    "label_confusion_matrix": {
+      "labels": [
+        "det",
+        "case",
+        "punct",
+        "nmod",
+        "nsubj",
+        "amod",
+        "advmod",
+        "root",
+        "obl:mod",
+        "obj",
+        "conj",
+        "cc"
+      ],
+      "matrix": [
+        [
+          1455,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1296,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          1184,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          712,
+          5,
+          1,
+          1,
+          7,
+          44,
+          3,
+          37,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          11,
+          435,
+          0,
+          1,
+          8,
+          6,
+          12,
+          6,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          1,
+          0,
+          473,
+          0,
+          3,
+          1,
+          0,
+          4,
+          0
+        ],
+        [
+          1,
+          10,
+          0,
+          1,
+          0,
+          0,
+          440,
+          0,
+          1,
+          1,
+          0,
+          3
+        ],
+        [
+          0,
+          0,
+          0,
+          6,
+          21,
+          3,
+          2,
+          298,
+          7,
+          0,
+          33,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          46,
+          4,
+          0,
+          2,
+          7,
+          221,
+          22,
+          9,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          5,
+          0,
+          1,
+          0,
+          31,
+          273,
+          1,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          65,
+          8,
+          7,
+          3,
+          8,
+          20,
+          3,
+          149,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          255
+        ]
+      ],
+      "support": {
+        "det": 1459,
+        "case": 1309,
+        "punct": 1186,
+        "nmod": 856,
+        "nsubj": 519,
+        "amod": 485,
+        "advmod": 462,
+        "root": 416,
+        "obl:mod": 348,
+        "obj": 344,
+        "conj": 319,
+        "cc": 256
+      }
+    },
+    "malformed_parse_stats_before_repair": {
+      "total_sentences": 416,
+      "zero_root_sentences_before_repair": 21,
+      "multi_root_sentences_before_repair": 1,
+      "unattached_sentences_before_repair": 35,
+      "malformed_sentences_before_repair": 36,
+      "repaired_sentences": 0,
+      "correct_root_sentences_before_repair": 290,
+      "correct_root_sentences_after_repair": 298
+    },
+    "parse_detail_sample": [
+      {
+        "terminal_reached": true,
+        "num_steps": 58,
+        "num_arcs": 29,
+        "pre_repair_root_ids": [
+          2
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          2
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 32,
+        "num_arcs": 16,
+        "pre_repair_root_ids": [
+          2
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          2
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 120,
+        "num_arcs": 60,
+        "pre_repair_root_ids": [
+          6
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          6
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 84,
+        "num_arcs": 42,
+        "pre_repair_root_ids": [
+          16
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          16
+        ],
+        "post_repair_root_count": 1
+      },
+      {
+        "terminal_reached": true,
+        "num_steps": 76,
+        "num_arcs": 38,
+        "pre_repair_root_ids": [
+          18
+        ],
+        "pre_repair_root_count": 1,
+        "pre_repair_unattached_ids": [],
+        "pre_repair_unattached_count": 0,
+        "repair_applied": false,
+        "post_repair_root_ids": [
+          18
+        ],
+        "post_repair_root_count": 1
+      }
+    ]
+  },
+  "model_id": "M0p",
+  "description": "Arc-Eager + Static Oracle + Sparse Handcrafted Features + Averaged Perceptron + Greedy Decoding + Projective Training Filter",
+  "transition_system": "arc-eager",
+  "oracle": "static",
+  "features": "sparse handcrafted",
+  "classifier": "averaged perceptron",
+  "decoder": "greedy",
+  "epochs": 10,
+  "selected_epoch": 8,
+  "seed": 0,
+  "train_sentences_original": 14450,
+  "train_sentences_kept": 13816,
+  "train_sentences_filtered": 634,
+  "train_tokens": 332744,
+  "dev_sentences": 1476,
+  "test_sentences": 416,
+  "dev_tokens": 35721,
+  "test_tokens": 10017,
+  "dev_uas": 88.04,
+  "dev_las": 82.96,
+  "test_uas": 85.17,
+  "test_las": 79.5,
+  "projective_filter": true,
+  "selection_metric": {
+    "primary": "dev_las",
+    "tie_breaker": "dev_uas"
+  }
+}

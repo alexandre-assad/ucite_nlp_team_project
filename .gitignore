@@ -1,0 +1,12 @@
+__pycache__/
+tests/__pycache__/
+*.pyc
+
+data/embeddings/*.bin
+!data/embeddings/README.md
+
+experiments/**/checkpoints/
+experiments/**/*.pkl
+experiments/**/*.pt
+
+*.zip

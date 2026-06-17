@@ -1,0 +1,36 @@
+{
+  "model_id": "M3",
+  "description": "Arc-Standard + Static Oracle + CamemBERT Contextual Embeddings + POS Embeddings + Dependency Label Embeddings + MLP + Greedy Decoding",
+  "transition_system": "arc-standard",
+  "oracle": "static",
+  "features": "contextual rich embeddings",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu",
+  "output_dir": "experiments/m3_arc_standard_contextual_rich",
+  "contextual": {
+    "model_name": "camembert-base",
+    "pooling": "average",
+    "frozen": true,
+    "use_gpu_if_available": true,
+    "local_files_only": true
+  },
+  "classifier": {
+    "type": "mlp",
+    "pos_embedding_dim": 32,
+    "label_embedding_dim": 32,
+    "hidden_dim": 512,
+    "dropout": 0.2
+  },
+  "training": {
+    "batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "AdamW",
+    "loss": "CrossEntropyLoss",
+    "use_gpu_if_available": true
+  }
+}

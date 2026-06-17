@@ -1,0 +1,16 @@
+{
+  "model_id": "M0p",
+  "description": "Arc-Eager + Static Oracle + Sparse Handcrafted Features + Averaged Perceptron + Greedy Decoding + Projective Training Filter",
+  "transition_system": "arc-eager",
+  "oracle": "static",
+  "features": "sparse handcrafted",
+  "classifier": "averaged perceptron",
+  "decoder": "greedy",
+  "epochs": 10,
+  "seed": 0,
+  "train_path": "data/fr_gsd-ud-train.conllu",
+  "dev_path": "data/fr_gsd-ud-dev.conllu",
+  "test_path": "data/fr_gsd-ud-test.conllu",
+  "projective_filter": true,
+  "output_dir": "experiments/m0p_arc_eager_static_sparse_projective"
+}
