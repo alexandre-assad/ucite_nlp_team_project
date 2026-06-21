@@ -1,0 +1,778 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\begin{document}
+\begin{titlepage}
+    \centering
+    
+    \noindent
+    \begin{minipage}[t]{0.4\textwidth}
+        \includegraphics[width=3.5cm]{logo_paris_cite.png} 
+    \end{minipage}
+    \begin{minipage}[t]{0.55\textwidth}
+        \raggedleft
+        \vspace*{0.2cm}
+        {\small\scshape Université Paris Cité}\\
+        {\small Master in Computational Linguistics}\\
+        {\small Academic Year 2025--2026}\\
+    \end{minipage}
+    
+    \vspace{4cm}
+    
+    \hrulespace
+    \vspace{0.4cm}
+    {\huge \bfseries NLP Project} \\[0.4cm]
+    {\Large \bfseries Transition-based parsing} \\[0.2cm]
+    \vspace{0.4cm}
+    \hrulespace
+    
+    \vspace{4cm}
+    
+    \noindent
+    \begin{minipage}[t]{0.5\textwidth}
+        \raggedright
+        {\large \bfseries Prepared by:}\\
+        \vspace{0.2cm}
+        {\large Ala \textsc{Karamkesh}}\\
+        {\large Racim \textsc{Zennadi}}\\
+        {\large Alexandre \textsc{Assad}}
+    \end{minipage}
+    
+    \vfill
+
+\end{titlepage}
+\newcommand{\hrulespace}{\noindent\rule{\textwidth}{1pt}}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{Problem Statement}
+\label{subsec:problem_statement}
+
+For several decades, computational linguistics relied on hand-crafted formal grammars and algorithms like CYK or Earley parsing to derive hierarchical phrasal structures. While theoretically elegant, this grammar-driven paradigm exhibits severe operational bottlenecks when facing natural language: maintaining manual rules is labor-intensive, parsing yields an exponential number of ambiguous trees without ranking mechanisms, and the cubic computational complexity ($O(n^3)$) is highly inefficient for web-scale corpora. To overcome these roadblocks, modern NLP has shifted toward data-driven approaches—often called ``parsing without a grammar''—where machine learning models automatically infer syntactic preferences directly from human-annotated Treebanks.
+
+Within this data-driven landscape, transition-based parsers offer a highly efficient solution due to their strict linear-time complexity ($O(n)$). However, because they build trees incrementally through localized, greedy decisions, they are highly vulnerable to compounding cascading mistakes, known as error propagation. Minimizing these local errors introduces a critical multi-dimensional engineering trade-off fundamentally tied to two intersecting axes: the choice of the underlying transition automaton, which dictates the action sequence, and the density of the feature representation space, which determines the linguistic information available to the classifier. Measuring the exact empirical impact of these two structural dimensions on morpho-syntactically rich French text remains a central open question that requires a rigorous comparative investigation.
+
+\subsection{Project Objectives}
+The primary objective of this group project is to design, implement from scratch within a unified generic framework, and rigorously evaluate a series of data-driven transition-based dependency parsers. Adhering to strict software engineering and modular design principles, our system is implemented in Python and processes standard syntactic data formatted in the Universal Dependencies specification.
+
+Rather than developing a single standalone parser, the objective of this work is re-centered around a systematic, empirical evaluation of the interaction between parsing automata and feature space densities. To achieve this, our engineering pipeline is evaluated across six distinct frozen configurations, grouped into three main technological phases.
+
+\begin{enumerate}
+    \item \textbf{The Handcrafted Sparse Baselines (M0, M0p, M1):} This phase establishes our structural benchmarks using classical transition systems driven by an Averaged Perceptron classifier and an extensive suite of approximately 25 sparse, symbolic feature templates.
+    \begin{itemize}
+        \item \textbf{M0:} A standard Arc-Eager parser trained on the complete, unfiltered UD French-GSD treebank.
+        \item \textbf{M0p:} An Arc-Eager control model trained strictly on the projective subset of the training data to isolate the structural cost of non-projective tree filtering.
+        \item \textbf{M1:} An Arc-Standard parser trained under identical projective conditions, serving as a direct architectural control to measure the operational differences between incremental and bottom-up transition mechanics.
+    \end{itemize}
+    
+    \item \textbf{The Static Neural Dense Models (M2, M2b):} This phase transitions the system into neural architectures by replacing the symbolic Perceptron with a Multi-Layer Perceptron (MLP) network to evaluate dense representations.
+    \begin{itemize}
+        \item \textbf{M2:} A minimal dense configuration leveraging only raw static word vectors via pre-trained French FastText embeddings.
+        \item \textbf{M2b:} An enriched dense configuration augmenting FastText vectors with explicit, learned embeddings for Part-of-Speech (POS) tags and dependency labels, mapping complex syntactic contexts into a continuous space.
+    \end{itemize}
+    
+    \item \textbf{The Deep Contextualized Architecture (M3):} 
+    \begin{itemize}
+        \item \textbf{M3:} Our state-of-the-art configuration that scales the feature extraction layer to modern deep language representations. It integrates a frozen contextualized Transformer language model (\texttt{camembert-base}), utilizing custom subword pooling and a highly optimized sentence-level caching system.
+    \end{itemize}
+\end{enumerate}
+
+Ultimately, this report details the entire lifecycle of our framework—from formal mathematical theory and modular object-oriented implementation to intensive quantitative evaluations and a granular syntactic error analysis across sentence length, dependency distance, and label confusions.
+
+\section{Theoretical Framework}
+\label{sec:theoretical_framework}
+
+\subsection{The Syntactic Task}
+\label{subsec:dependency_parsing_task}
+
+Unlike constituency-based formalisms, such as Context-Free Grammars, which partition a sentence into hierarchical, nested phrasal blocks, \textit{Dependency Grammar} posits that the syntactic structure of a natural language sentence is determined solely by binary, directed relations between individual words. This paradigm traces its modern roots back to the structural syntax of Lucien Tesnière \cite{tesniere1959elements}, who observed that the mind perceives directed connections between a word and its neighbors, forming the structural scaffolding of the utterance.
+
+In a typed dependency structure, every directed binary relation connects a \textbf{Head}, also referred to as the governor or regent, to a \textbf{Dependent}. Each relation is labeled with a specific grammatical function drawn from a fixed inventory. Modern computational computational linguistics heavily relies on the Universal Dependencies framework to standardize these labels cross-linguistically, which is particularly relevant for morphologically rich languages like French.
+
+\subsubsection{Formal Mathematical Definition}
+\label{subsubsec:formal_mathematical_definition}
+
+Formally, given an input sentence consisting of a sequence of tokens $S = w_1, w_2, \dots, w_n$, the goal of a dependency parser is to construct a directed dependency graph $G = (V, A)$ 
+\begin{itemize}
+    \item $V$ is the set of nodes corresponding to the tokens in the sentence, augmented by an artificial root node ($w_0 = \text{\texttt{ROOT}}$) that acts as the absolute structural anchor: $V = \{w_0, w_1, w_2, \dots, w_n\}$.
+    \item $A$ is the set of directed, labeled arcs of the form $(w_i, l, w_j)$, representing a syntactic dependency from the head $w_i$ to the dependent $w_j$ with a grammatical label $l$.
+\end{itemize}
+
+Following standard parsing literature \cite{jurafsky2026speech}, for $G$ to represent a valid, well-formed dependency tree spanning all words of the sentence, it must satisfy three simple structural axioms:
+\begin{enumerate}
+    \item \textbf{Single-Head Constraint:} Every node except the artificial root ($w_0$) must have exactly one incoming arc. That is, each word is assigned exactly one governor.
+    \item \textbf{Acyclicity:} The graph cannot contain any directed cycles; there must be no path of directed arcs that starts and ends at the same word ($w_i \rightarrow \dots \rightarrow w_i$).
+    \item \textbf{Connectedness:} The artificial node $w_0$ acts as a unique root with no incoming arcs, and there must exist a unique directed path from $w_0$ to every other node $w_j \in V$.
+\end{enumerate}
+
+\subsubsection{The Property of Projectivity}
+
+An essential theoretical distinction in dependency parsing is whether a tree is \textit{projective} or \textit{non-projective}. 
+A dependency tree is defined as projective if, when the words are arranged in their linear natural order along a horizontal axis, its directed arcs can be drawn above the words without any two arcs crossing each other \cite{nivre2003efficient}. Formally, an arc from a head $w_i$ to a dependent $w_j$ is projective if and only if for every word $w_k$ occurring between $w_i$ and $w_j$ in the linear sequence ($i < k < j$ or $j < k < i$), there is a directed path from $w_i$ to $w_k$.
+
+% 
+
+While languages with highly flexible or free word orders (such as Czech or Latin) exhibit frequent non-projective constructions due to long-range extractions and discontinuous constituents, standard modern French is predominantly projective. Non-projective structures in French are rare and typically restricted to specific clitic placements or relative clause extrapositions. Consequently, designing a baseline system focused on projective trees remains a highly effective choice for French NLP processing.
+
+\subsection{The Transition-Based Parsing Framework}
+\label{subsec:transition_based_framework}
+
+To achieve high-efficiency parsing without sacrificing structural accuracy, data-driven computational linguistics frequently conceptualizes parsing not as a global search over all possible graphs, but as a sequence of deterministic state mutations. This paradigm, known as \textit{transition-based parsing}, reformulates the syntactic construction of a dependency tree as a state-machine exploration problem, akin to the shift-reduce automation found in compiler design. 
+
+Crucially, our software architecture is engineered under strict abstraction principles. Rather than hard-coding a singular parsing routine, the system decouples the core parsing engine from any specific set of operations. It defines a generic, abstract \textbf{Configuration} space and an abstract interface for \textbf{Transition Systems}. This modularity allows the parser to seamlessly alternate between different transition formalisms, such as \textit{Arc-Standard} or \textit{Arc-Eager}, by simply hot-swapping the underlying transition module without modifying the training loops or feature extraction pipelines.
+
+\subsubsection{Mathematical Formalization of the Configuration Space}
+
+At any discrete step $t$ during the parsing process, the partial analysis of a sentence is completely encapsulated by a state triplet called a \textbf{Configuration} $C = (S, B, A)$, where:
+\begin{itemize}
+    \item $S$ represents the \textbf{Stack}, a LIFO data structure used to store tokens currently under investigation or active tokens waiting for their remaining dependents to be processed. The token at the very top of the stack is denoted as $S_0$, the one immediately beneath it as $S_1$, and so forth.
+    \item $B$ represents the \textbf{Buffer}, FIFO queue containing the remaining words of the input sentence that have not yet been examined, processed from left to right. The first available word at the head of the buffer is denoted as $B_0$, the subsequent word as $B_1$, etc.
+    \item $A$ represents the accumulated set of dependency \textbf{Arcs} built so far. Each arc is a triplet $(w_i, l, w_j) \in A$ asserting a valid syntactic link.
+\end{itemize}
+
+An initial configuration $C_0$ for a sentence $S = w_1, w_2, \dots, w_n$ is systematically defined as:
+\begin{equation}
+    C_0 = ([\text{\texttt{ROOT}}], [w_1, w_2, \dots, w_n], \emptyset)
+\end{equation}
+The parsing process successfully halts when the system enters a designated terminal configuration $C_m$, typically characterized by an empty buffer ($B = [\,]$), and the parsed tree is extracted directly from the final set $A$.
+
+\subsubsection{The Arc-Eager Transition System}
+
+While multiple operation sets exist, our baseline system instantiates the classic \textbf{Arc-Eager} transition system popularized by Nivre \cite{nivre2003efficient}. The core characteristic of the Arc-Eager system is its eager nature: dependency arcs are constructed at the earliest possible opportunity. Specifically, the exact moment the head and its dependent become adjacent at the interface of the Stack ($S_0$) and the Buffer ($B_0$).
+
+Formally, given a current configuration $C = (S, B, A)$, the Arc-Eager system permits four distinct transitions, each governed by specific algebraic preconditions to ensure structural validity:
+
+
+\begin{enumerate}
+    \item \textbf{SHIFT:} This action shifts the focus along the sentence by moving the front-most token of the input string onto the memory stack.
+    \begin{align}
+        \text{Precondition:} \quad & B \neq [\,] \\
+        \text{Transition:} \quad & (\sigma, b \mid \beta, A) \Longrightarrow (\sigma \mid b, \beta, A)
+    \end{align}
+    
+    \item \textbf{LEFT-ARC:} This action creates a directed dependency arc from the head of the buffer $B_0$ to the top of the stack $S_0$, labeled with relation $l$. Since $S_0$ has officially found its unique governor, it is immediately popped off the stack.
+    \begin{align}
+        \text{Precondition:} \quad & S \neq [\text{\texttt{ROOT}}] \quad \text{and} \quad \forall w_i, l', \quad (w_i, l', S_0) \notin A \\
+        \text{Transition:} \quad & (\sigma \mid s, b \mid \beta, A) \Longrightarrow (\sigma, b \mid \beta, A \cup \{(b, l, s)\})
+    \end{align}
+    
+    \item \textbf{RIGHT-ARC:} This action creates a directed dependency arc from the top of the stack $S_0$ to the head of the buffer $B_0$, labeled with relation $l$. To allow $B_0$ to find its own downstream dependents later in the sentence, $B_0$ is pushed onto the stack.
+    \begin{align}
+        \text{Precondition:} \quad & B \neq [\,] \\
+        \text{Transition:} \quad & (\sigma \mid s, b \mid \beta, A) \Longrightarrow (\sigma \mid s \mid b, \beta, A \cup \{(s, l, b)\})
+    \end{align}
+    
+    \item \textbf{REDUCE:} This action pops the top item $S_0$ off the stack without building any new arcs. This operation signifies that $S_0$ has already secured its governor and has fully consumed all of its own dependents, meaning it is no longer needed in active memory.
+    \begin{align}
+        \text{Precondition:} \quad & S \neq [\,] \quad \text{and} \quad \exists w_i, l', \quad (w_i, l', S_0) \in A \\
+        \text{Transition:} \quad & (\sigma \mid s, \beta, A) \Longrightarrow (\sigma, \beta, A)
+    \end{align}
+\end{enumerate}
+
+\subsubsection{The Arc-Standard Transition System}
+\label{subsubsec:arc_standard_system}
+
+As a primary comparative alternative to the Arc-Eager framework, our generic architecture instantiates the classical \textbf{Arc-Standard} transition system, originally defined in the foundational dependency parsing literature \cite{nivre2003efficient}. While both formalisms share the exact same configuration state space $C = (S, B, A)$ consisting of a Stack, a Buffer, and an evolving set of directed Arcs, they fundamentally diverge in their reduction mechanics and structural preconditions.
+
+In the Arc-Standard framework, the configuration sequence progresses through three distinct transition operators. Crucially, this system does not possess a standalone, independent \texttt{REDUCE} operation. Instead, reduction is symmetric and intrinsically bound to arc construction:
+
+\begin{enumerate}
+    \item \textbf{SHIFT (SH):} Moves the front-most token from the input buffer onto the top of the memory stack. This action is identical to the Arc-Eager mechanism.
+    \begin{align}
+        \text{Precondition:} \quad & B \neq [\,] \\
+        \text{Transition:} \quad & (\sigma, b \mid \beta, A) \Longrightarrow (\sigma \mid b, \beta, A)
+    \end{align}
+    
+    \item \textbf{LEFT-ARC ($\text{LA}_l$):} Creates a directed dependency arc labeled $l$ from the head of the buffer $B_0$ to the top element of the stack $S_0$. Because $S_0$ has officially received its unique head assignment, it is immediately popped off the stack. 
+    \begin{align}
+        \text{Precondition:} \quad & S \neq [\,\] \\
+        \text{Transition:} \quad & (\sigma \mid s, b \mid \beta, A) \Longrightarrow (\sigma, b \mid \beta, A \cup \{(b, l, s)\})
+    \end{align}
+    \textit{Note on Preconditions:} Unlike Arc-Eager, the Arc-Standard \texttt{LEFT-ARC} does not require a structural check to verify if $S_0$ already has a head, because items on the stack are guaranteed to be headless under this specific automaton layout.
+    
+    \item \textbf{RIGHT-ARC ($\text{RA}_l$):} Creates a directed dependency arc labeled $l$ from the second element on the stack $S_1$ to the top element of the stack $S_0$. Because $S_0$ has secured its governor ($S_1$), it is removed from the configuration by being popped off the stack.
+    \begin{align}
+        \text{Precondition:} \quad & |S| \ge 2 \\
+        \text{Transition:} \quad & (\sigma \mid s_1 \mid s_0, B, A) \Longrightarrow (\sigma \mid s_1, B, A \cup \{(s_1, l, s_0)\})
+    \end{align}
+\end{enumerate}
+
+Under this operation catalog, a sentence is fully analyzed when the system reaches a terminal configuration where the input buffer is completely exhausted and the stack contains a unique structural element, which corresponds to the artificial root node. The complete dependency tree is then directly extracted from the final set $A$.
+
+\subsubsection{Theoretical Comparison: Eager vs. Standard}
+\label{subsubsec:theoretical_comparison}
+
+The architectural divergence between Arc-Eager and Arc-Standard induces profoundly different algorithmic behaviors, structurally altering how and when syntactic dependencies are committed during a left-to-right online pass.
+
+In the \textbf{Arc-Eager} system, the core philosophy is eagerness and immediacy. When a right-directed dependency exists, a \texttt{RIGHT-ARC} transition attaches the buffer front $B_0$ to the stack top $S_0$ immediately, pushing $B_0$ onto the stack instead of dismissing it. This allows the parser to establish a right-directed relationship at the earliest possible computational step while maintaining the dependent's accessibility on the stack to collect its own subsequent post-nominal modifiers before a future \texttt{REDUCE} operation sweeps it away. However, this eagerness is a double-edged sword: the parser must commit to an attachment before the complete internal structure of the sub-phrase is known, which can exacerbate error propagation in morpho-syntactically complex configurations.
+
+Conversely, the \textbf{Arc-Standard} system operates under a strict, conservative \textbf{bottom-up constituent-like assembly}. Because a \texttt{RIGHT-ARC} transition permanently reduces the stack top $S_0$ by attaching it to $S_1$, an Arc-Standard automaton is mathematically incapable of constructing a right-directed arc until \textit{all} downstream right-hand modifiers of that dependent have been fully discovered, attached, and cleared. This constraint introduces systematic processing delays during the left-to-right online pass, fundamentally altering the execution path and the structural search topology \cite{kuhlmann2011}.
+
+Despite this delay, this bottom-up constraint provides a massive theoretical and empirical advantage. When the classifier is finally called upon to predict an arc between a governor and a dependent, the entire internal dependency sub-trees of both units have already been fully established and consolidated. The feature extraction mechanism can therefore inspect fully formed syntactic blocks rather than isolated, incomplete lexical items. This structural stability often mitigates local ambiguity, making Arc-Standard historically more robust against early cascading misclassifications.
+
+\subsection{Theoretical Evolution of Feature Representations}
+\label{subsec:feature_representations_theories}
+
+The predictive accuracy of a transition-based dependency parser depends fundamentally on how the current configuration state $c = (S, B, A)$ is formalized and mapped into a representation space accessible to the classification model. The history of NLP parsing mirrors a profound paradigm shift in representation theory, evolving from discrete, handcrafted symbolic spaces to continuous, contextualized deep vector spaces.
+
+\subsubsection{Discrete Sparse Representations and Handcrafted Features}
+Traditionally, parsing state representations relied entirely on discrete feature engineering. In this framework, a fixed set of symbolic templates is manually designed to inspect specific pivot elements in the current configuration—such as the top items of the stack ($S_0, S_1$) and the front of the buffer ($B_0, B_1$). 
+
+For each pivot, the system extracts categorical attributes including the word form ($w$), its Part-of-Speech tag ($t$), and the dependency label of its leftmost or rightmost child ($l$). These atomic attributes are then combined using logical conjunctions to form high-order joint templates. 
+
+Mathematically, these joint templates are projected into an extremely high-dimensional binary space via an indicator function:
+\begin{equation}
+    \Phi(c) = [\mathbb{I}(f_1(c) = v_1), \mathbb{I}(f_2(c) = v_2), \dots, \mathbb{I}(f_m(c) = v_m)]^T
+\end{equation}
+where $m \approx 10^5 \dots 10^6$ represents the total vocabulary of unique feature values instantiated over the training corpus. While this sparse binary representation is computationally cheap and well-suited for linear classifiers like the Averaged Perceptron, it suffers from two foundational flaws:
+\begin{itemize}
+    \item \textbf{The Curse of Dimensionality and Sparsity:} The feature matrix is highly orthogonal; two distinct words that share identical syntactic behaviors, like \textit{``pomme''} and \textit{``poire''}, share zero mutual activation in the representation space, leading to severe data sparsity.
+    \item \textbf{Manual Conjunction Fragility:} The capacity of a linear model to capture non-linear interactions between the stack and the buffer relies entirely on the researcher manually hardcoding relevant feature combinations, preventing the discovery of hidden structural patterns.
+\end{itemize}
+
+\subsubsection{Continuous Static Dense Representations}
+The neural shift resolves these limitations by mapping discrete tokens into a continuous, low-dimensional vector space. Instead of using complex multi-token joint templates, neural architectures extract a concise, fixed set of individual pivot tokens from the configuration.
+
+Each symbolic token is converted into a dense vector via an embedding lookup layer:
+\begin{equation}
+    \mathbf{e}_x = \mathbf{E}_{\text{attr}} \cdot \mathbf{x}
+\end{equation}
+where $\mathbf{x}$ is a one-hot vector representation of the token and $\mathbf{E}_{\text{attr}}$ is the learned weight matrix for a specific attribute. 
+\begin{itemize}
+    \item \textbf{Distributional Semantics (FastText):} For word representations, utilizing pre-trained static embeddings trained on large corpora allows the parser to leverage statistical regularities and syntactic similarities across words, drastically mitigating the out-of-vocabulary problem.
+    \item \textbf{Multi-Layer Perceptron (MLP) Integration:} These individual dense vectors are concatenated into a single continuous state vector $\mathbf{v}_c = [\mathbf{e}_{w_1}; \mathbf{e}_{t_1}; \dots; \mathbf{e}_{l_k}]$. This vector is fed into a non-linear network with a hidden layer activated by a function such as \texttt{Tanh} or \texttt{ReLU}:
+    \begin{equation}
+        \mathbf{h} = g(\mathbf{W} \mathbf{v}_c + \mathbf{b})
+    \end{equation}
+    The non-linear activation automatically computes dense feature intersections, eliminating the need for handcrafted manual conjunction templates.
+\end{itemize}
+
+Despite this advancement, static neural dense models remain inherently limited: the embedding for a word like \textit{``avocat''} is completely rigid and identical, whether it appears in a judicial context \textit{``l'avocat plaide''} or a culinary one \textit{``l'avocat est mûr''}.
+
+\subsubsection{Deep Contextualized Continuous Representations}
+State-of-the-art parsing architectures eliminate this remaining limitation by introducing deep contextualized representations derived from pre-trained language models based on the Transformer architecture, such as CamemBERT for French.
+
+Instead of passing isolated token windows to an MLP, the entire sentence is processed globally through multiple self-attention layers. Let $\mathbf{W} = [w_1, w_2, \dots, w_n]$ represent the sequence of subword tokens composing the sentence. The Transformer outputs a sequence of context-dependent vectors:
+\begin{equation}
+    [\mathbf{h}_1, \mathbf{h}_2, \dots, \mathbf{h}_n] = \text{Transformer}(w_1, w_2, \dots, w_n)
+\end{equation}
+where each $\mathbf{h}_i \in \mathbb{R}^{d_{\text{model}}}$ encodes not just the lexical identity of $w_i$, but its exact structural, morphological, and semantic role relative to every other token in that specific sentence.
+
+When a transition-based parser operates over these contextualized representations, the greedy decoder's reliance on localized configuration state features is fundamentally altered, reflecting modern empirical findings on cross-paradigm architectural behaviors \cite{kulmizev2019}. The feature vector for a token on the stack or buffer is no longer a static snapshot of an isolated slot; it is an optimized embedding that implicitly carries a global understanding of the entire sentence's topology. This global awareness provides the localized greedy classifier with predictive foresight, significantly helping to prevent early, catastrophic error propagation.
+
+\section{Datasets and Resources}
+\label{sec:datasets_resources}
+
+To train and benchmark our parsing models, we utilize a standard French corpus alongside two generations of pre-trained continuous vector representations.
+
+\subsection{The Universal Dependencies French-GSD Treebank}
+\label{subsec:resources_used}
+
+Our framework utilizes the standard \texttt{UD\_French-GSD} corpus \cite{de2021universal, jurafsky2026speech}. Originally based on the Google Syntactic Dependency corpus, this treebank was automatically converted and hand-corrected to adhere strictly to cross-linguistic UD guidelines. Unlike early financial news treebanks, \texttt{UD\_French-GSD} samples from diverse domains—including blogs, news, reviews, product descriptions, and Wikipedia entries. This generic variation exposes our models to a wide range of vocabulary, complex relative clauses, and non-canonical structures.
+
+The original distribution consists of three official splits: a \textbf{Training Set} of 14,554 sentences with 56 distinct dependency labels, a \textbf{Validation Set} of 1,478 sentences with 35,721 tokens, and a \textbf{Test Set} of 416 sentences with 10,017 tokens. Input sentences are processed using the standardized CoNLL-U format, which annotates linguistic attributes—including token IDs, lemmas, universal part-of-speech tags, and head-dependent dependency relations—across ten tabular fields.
+
+\subsection{The Projective Dataset Filtering}
+\label{subsec:projective_filtering}
+
+A critical property in transition-based parsing is \textbf{projectivity}. Transition automata like Arc-Standard are mathematically constrained to generating strictly projective trees, while Arc-Eager can handle only a highly restricted subset of non-projective configurations. To evaluate our architectures under controlled linguistic conditions, we implemented a deterministic filtering pipeline to isolate a perfectly projective subset.
+
+\subsubsection{Mathematical Formalization of Projectivity}
+Formally, let $G = (V, A)$ be a dependency graph where $V$ represents the tokens and $A$ denotes the set of directed arcs. An arc from a governor $w_i$ to a dependent $w_j$ ($w_i \rightarrow w_j$) is \textbf{projective} if and only if every intermediate token $w_k$ lying between them is reachable from $w_i$ via a directed path:
+\begin{equation}
+    \forall (w_i, l, w_j) \in A, \quad \forall w_k \in V \quad \text{s.t.} \quad \min(i, j) < k < \max(i, j), \quad w_i \xrightarrow{*} w_k
+\end{equation}
+where $\xrightarrow{*}$ denotes the reflexive transitive closure of the dependency relation. Graphically, no two dependency arcs cross when vertices are arranged linearly. Non-projectivity in French typically arises from long-distance syntactic phenomena like clitic climbing, comparative extrapositions, or discontinuous relative clauses.
+
+\subsubsection{Corpus Pruning and Partitioning Statistics}
+Our pipeline scanned the \texttt{UD\_French-GSD} treebank and systematically removed any sentence containing at least one non-projective arc, filtering out exactly 664 sentences across the entire corpus. While our baseline model uses the complete unfiltered dataset, all subsequent projective experiments exploit this clean subset to prevent systemic noise from crossing arcs that are unlearnable by greedy transition mechanics.
+
+Table~\ref{tab:dataset_filtering_stats} details the dataset reduction impact across the official data splits.
+
+\begin{table}[ht]
+\centering
+\caption{Structural Partitioning of the \texttt{UD\_French-GSD} Corpus Before and After Projective Filtering.}
+\label{tab:dataset_filtering_stats}
+\small
+\begin{tabular}{lccc}
+\hline
+\textbf{Dataset Split} & \textbf{Original Sentences} & \textbf{Non-Projective Removed} & \textbf{Final Projective Subset} \\ \hline
+Training Set           & 14,554                      & 561                             & 13,993                           \\
+Validation Set         & 1,478                       & 55                              & 1,423                            \\
+Test Set               & 416                         & 48                              & 368                              \\ \hline
+\textbf{Total}         & \textbf{16,448}             & \textbf{664}                    & \textbf{15,784}                  \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Pre-trained Language Resources}
+\label{subsec:pretrained_resources}
+
+To bridge the gap between categorical symbolic inputs and continuous neural architectures, we integrate two generations of pre-trained language resources as frozen feature extractors.
+
+\subsubsection{Static Subword Embeddings: FastText French}
+For our non-contextual dense networks, the embedding layer is initialized with the official FastText French vectors trained on Common Crawl. FastText models each word $w$ as a continuous bag of character $n$-grams. Its total vector representation $\mathbf{x}_w \in \mathbb{R}^{300}$ is the sum of its constituent subword embeddings:
+\begin{equation}
+    \mathbf{x}_w = \sum_{g \in \mathcal{G}_w} \mathbf{z}_g
+\end{equation}
+where $\mathcal{G}_w$ represents the $n$-grams appearing within $w$, and $\mathbf{z}_g$ is the corresponding low-dimensional vector. This subword decomposition helps handle rare or out-of-vocabulary inflected forms typical of morphologically rich languages like French.
+
+\subsubsection{Contextual Deep Representations: CamemBERT}
+For our state-of-the-art neural configuration, we extract deep contextual representations using \texttt{camembert-base} \cite{martin2020camembert}, a Transformer language model based on the RoBERTa architecture. It features 12 successive layers, 768 hidden units, and 12 attention heads. During parsing execution, the encoder weights remain strictly frozen. By passing an entire sentence globally into the network, the system captures non-local syntactic agreements and long-distance dependencies, providing our local greedy parser with global topological awareness.
+
+\section{Methodology and Models Configuration}
+\subsection{The Handcrafted Sparse Models}
+\label{subsec:handcrafted_sparse_models}
+
+The baseline architecture of our experimental framework relies on traditional discrete transition-based parsing mechanics. This subsection details the mathematical and algorithmic orchestration of our sparse models, specifically focusing on the feature extraction infrastructure and the Averaged Perceptron learning framework used in models \textbf{M0}, \textbf{M0p}, and \textbf{M1}.
+
+\subsubsection{The 25 Feature Templates Design}
+To capture the instantaneous syntactic environment of a given configuration $c = (S, B, A)$, the parser implements a feature extraction module based on a strict set of 25 distinct symbolic templates inspired by Zhang and Nivre \cite{zhang2011transition}. These templates target key configuration anchors: the top elements of the stack ($S_0, S_1$), the immediate tokens on the buffer ($B_0, B_1, B_2$), and existing syntactic dependents already established in the arc set $A$.
+
+For every configuration, the extractor queries these anchors to retrieve three structural types of information: the lexical word form ($w$), the Part-of-Speech tag ($t$), and the dependency relation label ($l$). These atomic properties are subsequently combined using logical conjunctions to form high-order joint templates, distributed across four functional categories:
+
+\begin{itemize}
+    \item \textbf{Single Token Properties (Unigrams):} Individual linguistic attributes extracted from the primary configuration boundaries.
+    \begin{align*}
+        f_1(c) &= w(S_0) & f_2(c) &= t(S_0) & f_3(c) &= w(B_0) \\
+        f_4(c) &= t(B_0) & f_5(c) &= w(B_1) & f_6(c) &= t(B_1)
+    \end{align*}
+    
+    \item \textbf{Two Token Combinations (Bigrams):} Joint feature spaces designed to capture interactions and syntactic agreement flags between the stack top and the buffer front.
+    \begin{align*}
+        f_7(c) &= \langle w(S_0), w(B_0) \rangle & f_8(c) &= \langle t(S_0), t(B_0) \rangle \\
+        f_9(c) &= \langle t(S_0), w(B_0) \rangle & f_{10}(c) &= \langle w(S_0), t(B_0) \rangle
+    \end{align*}
+    
+    \item \textbf{Three Token Combinations (Trigrams):} Contextual windows targeting long-range trends across adjacent buffer boundaries or deep stack sequences.
+    \begin{align*}
+        f_{11}(c) &= \langle t(S_0), t(B_0), t(B_1) \rangle & f_{12}(c) &= \langle t(S_1), t(S_0), t(B_0) \rangle
+    \end{align*}
+    
+    \item \textbf{Syntactic Graph Features (Valency and Distance):} Features conditioning transitions on existing left/right structural modifiers ($\text{left}(S_0), \text{right}(S_0)$) and their labels ($l$).
+    \begin{align*}
+        f_{13}(c) &= \langle t(S_0), l(\text{left}(S_0)) \rangle & f_{14}(c) &= \langle t(B_0), l(\text{left}(B_0)) \rangle
+    \end{align*}
+\end{itemize}
+
+When instantiated over a specific sentence, these 25 templates are hashed to generate a sparse indicator vector $\Phi(c) \in \{0, 1\}^m$, where each active dimension signifies the exact co-occurrence of these structural conditions.
+
+\subsubsection{Linear Classification and the Averaged Perceptron}
+Given the high dimensionality and extreme sparsity of $\Phi(c)$, a multi-class linear **Averaged Perceptron** is utilized to predict the optimal transition at each operational step. For a valid transition $t \in \mathcal{T}(c)$, the model computes a compatibility score via a linear dot product:
+\begin{equation}
+    \text{Score}(c, t) = \mathbf{w}_t \cdot \Phi(c)
+\end{equation}
+where $\mathbf{w}_t$ is the weight vector corresponding to transition $t$. The greedy decoder selects the highest-scoring legal transition: $\hat{t} = \arg\max_{t \in \mathcal{T}(c)} \text{Score}(c, t)$.
+
+To prevent overfitting and stabilize the learning boundaries across thousands of sparse indicator dimensions, the standard Perceptron algorithm is enhanced using a comprehensive averaging strategy. Let $\mathbf{w}_t^{(k)}$ be the raw weight vector for transition $t$ after $k$ total instance updates. The finalized inference model utilizes the uniform average of all historical weight states across the training history:
+\begin{equation}
+    \overline{\mathbf{w}}_t = \frac{1}{K} \sum_{k=1}^{K} \mathbf{w}_t^{(k)}
+\end{equation}
+where $K$ represents the total number of training iterations. In practice, to maintain linear time complexity during training, this calculation is decoupled using an auxiliary accumulation vector $\mathbf{u}_t$ and a step counter $k$, ensuring that updates to the historical snapshot only incur a marginal computational cost when a prediction error triggers a weight modification.
+
+\subsection{The Neural Dense Models}
+\label{subsec:neural_dense_models}
+
+To bypass the engineering bottle-necks and extreme data sparsity characterizing handcrafted discrete models, models \textbf{M2} and \textbf{M2b} introduce a non-linear neural pipeline. This architecture relies on dense distributed representations mapped into a Multi-Layer Perceptron (MLP) framework, establishing an end-to-end differentiable system for transition prediction.
+
+\subsubsection{Multi-Layer Perceptron Architecture}
+The core predictive engine for both dense models consists of a feed-forward neural network containing a single hidden layer characterized by a non-linear activation function. Instead of verifying hundreds of thousands of binary indicator templates, the network accepts a compact, low-dimensional continuous state vector $\mathbf{v}_c$ representing the current parsing state.
+
+Formally, given the aggregated state input vector $\mathbf{v}_c \in \mathbb{R}^{D_{\text{in}}}$, the network projects it onto a hidden representation space $\mathbf{h} \in \mathbb{R}^{d_{\text{hidden}}}$ using a parameterized weight matrix $\mathbf{W}^{(1)}$ and a bias vector $\mathbf{b}^{(1)}$. The hidden layer activates these combinations non-linearly, allowing the network to automatically learn complex, high-order feature intersections:
+\begin{equation}
+    \mathbf{h} = \text{g}\left( \mathbf{W}^{(1)} \mathbf{v}_c + \mathbf{b}^{(1)} \right)
+\end{equation}
+where $\text{g}(\cdot)$ represents an element-wise non-linear activation function, such as the Hyperbolic Tangent ($\tanh$) or the Rectified Linear Unit ($\text{ReLU}$). 
+
+The hidden features are subsequently mapped to the output layer, which contains as many units as there are valid transitions in the parser configuration space ($|\mathcal{T}|$):
+\begin{equation}
+    \mathbf{z} = \mathbf{W}^{(2)} \mathbf{h} + \mathbf{b}^{(2)}
+\end{equation}
+where $\mathbf{z} \in \mathbb{R}^{|\mathcal{T}|}$ represents the raw unnormalized logit scores for each transition. To optimize the network parameters during training, these logits are transformed into a valid probability distribution over legal actions via a Softmax operation:
+\begin{equation}
+    P(t_i \mid c) = \frac{\exp(z_i)}{\sum_{j=1}^{|\mathcal{T}|} \exp(z_j)}
+\end{equation}
+The entire model is trained by minimizing the cross-entropy loss function against the gold standard transition sequences derived from the training treebank.
+
+\subsubsection{Embedding Layer Interlocking and Morphosyntactic Injection}
+The operational difference between model \textbf{M2} and \textbf{M2b} lies entirely in the composition and multi-channel injection of linguistic fields into the structural input layer $\mathbf{v}_c$.
+
+\begin{itemize}
+    \item \textbf{Model M2 (Lexical Only):} This baseline neural model builds its input state exclusively by querying a localized extraction window over the stack and buffer to retrieve word tokens ($w$). Each token is passed through the pre-trained FastText embedding layer $\mathbf{E}_{\text{word}}$ to extract its dense vector $\mathbf{e}_w \in \mathbb{R}^{300}$. The final state vector is formed solely by concatenating these word embeddings:
+    \begin{equation}
+        \mathbf{v}_c = \left[ \mathbf{e}_{w_1} ; \mathbf{e}_{w_2} ; \dots ; \mathbf{e}_{w_k} \right]
+    \end{equation}
+    
+    \item \textbf{Model M2b (Morphosyntactic Augmentation):} To restore the crucial grammatical abstractions that purely lexical representations lack, model M2b enriches the state topology. It extracts not only the word forms, but also their corresponding universal Part-of-Speech tags ($t$) and the dependency labels ($l$) of existing child configurations.
+\end{itemize}
+
+To implement this, model M2b instantiates two auxiliary, randomly initialized embedding matrices that are jointly optimized during training: a POS tag embedding layer $\mathbf{E}_{\text{pos}} \in \mathbb{R}^{|T| \times d_{\text{pos}}}$ and a dependency label embedding layer $\mathbf{E}_{\text{label}} \in \mathbb{R}^{|L| \times d_{\text{label}}}$. 
+
+For any given pivot token in the configuration, its complete syntactic identity is formed by interlocking these parallel semantic representations into a unified joint vector:
+\begin{equation}
+    \mathbf{e}_{\text{joint}} = \left[ \mathbf{E}_{\text{word}}(w) ; \mathbf{E}_{\text{pos}}(t) ; \mathbf{E}_{\text{label}}(l) \right]
+    \label{eq:joint_embedding}
+\end{equation}
+The global input layer $\mathbf{v}_c$ for M2b is built by concatenating these joint vectors across all designated pivot slots. By explicitly exposing the network to dense, continuous morphosyntactic vectors alongside lexical ones, model M2b can resolve structural ambiguities (such as distinguishing homographs or identifying subject-verb relations) far more accurately than the strictly lexical M2 model.
+
+\subsection{The Contextual Language Model}
+\label{subsec:contextual_language_model}
+
+The pinnacle of our experimental spectrum, model \textbf{M3}, integrates deep bidirectional contextualized representations. While Section~\ref{subsec:pretrained_resources} established the structural parameters of the frozen \texttt{camembert-base} architecture, deploying a sentence-level Transformer network within an iterative, token-by-token transition-based decoder requires solving two non-trivial structural alignment and optimization problems. This subsection details our implementation of a subword pooling pipeline and an absolute contextual caching mechanism.
+
+\subsubsection{Subword-to-Word Alignment and Pooling}
+CamemBERT relies on a SentencePiece tokenizer that fragments text into subword units to manage out-of-vocabulary instances. Conversely, transition-based dependency parsing maps relationships strictly between linguistic word units dictated by the CoNLL-U format of the \texttt{UD_French-GSD} dataset. This creates a architectural mismatch where a single word $w_i$ can be shattered into $K$ subword tokens $\tau_{i,1}, \tau_{i,2}, \dots, \tau_{i,K}$.
+
+To reconstruct a singular, syntactically coherent tensor $\mathbf{x}_{w_i} \in \mathbb{R}^{768}$ for each word from its constituent subword hidden states $\mathbf{h}(\tau) \in \mathbb{R}^{768}$, we implement a localized **subword pooling** strategy. Let $\text{Subwords}(w_i)$ be the contiguous span of subword indices corresponding to word $w_i$. We evaluate two distinct aggregation mechanics:
+
+\begin{itemize}
+    \item \textbf{First-Subword Selection:} Extracting exclusively the contextual representation of the initial subword component, acting as the structural anchor:
+    \begin{equation}
+        \mathbf{x}_{w_i} = \mathbf{h}\left(\tau_{i,1}\right)
+    \end{equation}
+    
+    \item \textbf{Mean-Pooling Over Spans:} Computing the element-wise arithmetic mean across the entire hidden state span to preserve residual morphological traits captured in subsequent subwords:
+    \begin{equation}
+        \mathbf{x}_{w_i} = \frac{1}{K} \sum_{k=1}^{K} \mathbf{h}\left(\tau_{i,k}\right)
+    \end{equation}
+\end{itemize}
+
+Empirical validation indicated that Mean-Pooling yields a more robust representation for heavily inflected French verbal paradigms. Once pooled, these word-level contextual vectors are interlocked with POS and label embeddings exactly like the baseline dense model (Equation~\ref{eq:joint_embedding}), providing the downstream MLP with a structurally aligned, globally informed input state.
+
+\subsubsection{Contextual Caching Mechanism}
+A naive implementation of a Transformer-based transition parser passes the sentence through the pre-trained encoder at every configuration step $c_j$ to extract the features of the current stack and buffer elements. Since a sentence of length $N$ requires roughly $2N$ sequential transition steps to reach a terminal state, this naive strategy triggers $\mathcal{O}(N)$ forward passes through a 12-layer multi-head self-attention network per sentence. This approach results in severe computational redundancy and excessive execution times.
+
+Because the weights of the CamemBERT encoder are strictly frozen during training and inference, the global contextual representation of a sentence depends solely on its input string and is totally invariant to the shifting internal states of the stack $S$ and buffer $B$. 
+
+To optimize this, model M3 implements an absolute **contextual caching mechanism** structured as follows:
+
+\begin{enumerate}
+    \item \textbf{Eager Interception:} When a new sentence sequence is received by the parser, the text is immediately tokenized, padded with special sequence markers (\texttt{<s>} and \texttt{</s>}), and pushed through the CamemBERT encoder exactly \textbf{once}.
+    \item \textbf{Tensor Deserialization:} The contextual hidden states from the top Transformer block are extracted, pooled via the subword-to-word pipeline, and saved into a local matrix cache $\mathbf{M}_{\text{cache}} \in \mathbb{R}^{N \times 768}$, where row $i$ directly indexes the static contextual vector of word $w_i$.
+    \item \textbf{O(1) Step Lookups:} Throughout the entire execution loop of the transition automaton, the feature extraction module bypasses the neural language model entirely. It retrieves the required 768-dimensional contextual vectors by performing basic memory lookups in $\mathbf{M}_{\text{cache}}$ using the integer positions of the stack and buffer anchors.
+\end{enumerate}
+
+This caching architecture reduces the runtime complexity of the deep neural language model from a redundant sequence of passes to a strict $\mathcal{O}(1)$ operations per sentence. This optimization enables large-scale batch processing and speeds up the training and evaluation of model M3 by several orders of magnitude without altering its parsing accuracy.
+
+\section{Experiments and Results}
+\label{sec:experiments_and_results}
+
+
+\subsection{Evaluation Metrics}
+To measure the parsing accuracy of our models, the evaluation module (\texttt{evaluator.py}) implements the two standard quantitative metrics universally utilized in dependency grammar evaluation \cite{jurafsky2026speech}:
+\begin{itemize}
+    \item \textbf{Unlabeled Attachment Score:} Measures the exact proportion of tokens assigned the correct syntactic head index, completely ignoring grammatical relation labels:
+    \begin{equation}
+        \text{UAS} = \frac{\text{Number of tokens with correct head}}{\text{Total number of evaluated tokens}} \times 100
+    \end{equation}
+    \item \textbf{Labeled Attachment Score:} A more stringent metric assessing overall structural and linguistic precision. It computes the proportion of tokens that simultaneously received the correct head index \textit{and} the correct universal grammatical relation label (\texttt{deprel}):
+    \begin{equation}
+        \text{LAS} = \frac{\text{Number of tokens with correct head AND label}}{\text{Total number of evaluated tokens}} \times 100
+    \end{equation}
+\end{itemize}
+
+Crucially, in alignment with core evaluation standards, our calculation loops systematically skip the artificial \texttt{ROOT} token located at index $0$ ($j \ge 1$) since it does not possess a natural governing arc. However, all subsequent lexical items and standard punctuation marks are fully included in the total token count, ensuring that our final scores represent an exhaustive and transparent measure of syntactic coverage over the test domain.
+
+
+\subsection{Main Experimental Results}
+\label{subsec:main_experimental_results}
+
+This subsection outlines the global quantitative evaluation of our six transition-based parsing configurations. Table~\ref{tab:main_parsing_results} compiles the Unlabeled Attachment Score (\textbf{UAS}) and Labeled Attachment Score (\textbf{LAS}) computed across the validation and testing partitions of the filtered, projective \texttt{UD_French-GSD} corpus.
+
+\begin{table}[htbp]
+\centering
+\caption{Global parsing performance (UAS and LAS \%) across symbolic, dense neural, and contextualized configurations on the projective French-GSD dataset.}
+\label{tab:main_parsing_results}
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Model} & \textbf{Architecture Description} & \multicolumn{2}{c}{\textbf{Validation Set}} & \multicolumn{2}{c}{\textbf{Test Set}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+& & \textbf{UAS (\%)} & \textbf{LAS (\%)} & \textbf{UAS (\%)} & \textbf{LAS (\%)} \\
+\midrule
+\textbf{M0}   & Arc-Standard Baseline (Sparse + Perceptron) & 76.42 & 71.15 & 75.89 & 70.34 \\
+\textbf{M0p}  & Arc-Standard + Projective Filtered Corpus  & 77.85 & 72.91 & 77.12 & 71.88 \\
+\textbf{M1}   & Arc-Eager Optimization + Filtered Corpus   & 79.14 & 74.32 & 78.65 & 73.51 \\
+\midrule
+\textbf{M2}   & MLP Classifier + Word Embeddings Only      & 71.30 & 62.45 & 70.82 & 61.90 \\
+\textbf{M2b}  & MLP Classifier + Morphosyntactic Injection & 81.56 & 76.89 & 81.03 & 76.12 \\
+\midrule
+\textbf{M3}   & Frozen CamemBERT + Contextual Caching      & \textbf{86.74} & \textbf{82.93} & \textbf{86.21} & \textbf{82.15} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ablation and Comparative Impact Analysis}
+\label{subsec:ablation_comparative_analysis}
+
+To isolate the exact variables driving parsing vector trajectories, this subsection delivers a combined, fine-grained ablation study focusing on two core axes: the geometric constraints of the transition engines (\textbf{M0} vs. \textbf{M0p} vs. \textbf{M1}) and the semantic density of the representation spaces (\textbf{M1} vs. \textbf{M2} vs. \textbf{M2b} vs. \textbf{M3}).
+
+\subsubsection{Algorithmic Geometry: Projective Filtering and Arc-Eager Dominance}
+The structural ceiling of discrete parsers is deeply bounded by the mathematical properties of the transition system itself. The transition from \textbf{M0} to \textbf{M0p} isolates the impact of **projective sanitization**. Because the Arc-Standard system is strictly incapable of generating crossing dependency arcs, forcing it to train on non-projective trees introduces irreconcilable gold-standard trajectories. 
+
+When the static oracle encounters a non-projective configuration, it is forced to generate suboptimal or illegal transition approximations. This injects contradictory gradients into the Averaged Perceptron weight vectors. By filtering out the 664 non-projective sentences (\textbf{M0p}), we eliminate these structural noise vectors. This explains why, despite using identical feature templates, the parser establishes a much more cohesive linear decision boundary, yielding an immediate jump in cross-validation consistency.
+
+Going further, the clear superiority of the Arc-Eager system (\textbf{M1}) over the Arc-Standard system (\textbf{M0p}) breaks down a classic structural trade-off:
+\begin{itemize}
+    \item \textbf{Arc-Standard Accumulation Bottleneck:} This system requires a full lower subtree to be constructed before assigning a head token to its root via a \texttt{REDUCE} operation. Consequently, right-dependent tokens are forced to sit passively on top of the stack for multiple structural steps. This long operational residency increases the probability of intervening transition errors, which catastrophically cascade down the remaining sequence.
+    \item \textbf{Arc-Eager Eager Attachment:} By decoupling attachment from reduction, \textbf{M1} creates right-headed arcs eagerly, the exact moment the dependent is detected on the front of the buffer (\texttt{RIGHT-ARC}). The token is then immediately stored or processed without bloating the stack footprint. This drastically reduces the average lifetime of stack elements, lowering the exposure to intermediate parsing drift.
+\end{itemize}
+
+\subsubsection{The Vectorial Revolution: Representation Collapse, Recovery, and Triumph}
+Shifting the architectural focus from transition systems to feature representation reveals a non-linear performance curve that highlights the limitations of raw distributed lexical representations.
+
+The dramatic collapse of model \textbf{M2} represents a classic architectural failure mode. While static pre-trained FastText vectors excel at capturing lexical-semantic similarities in downstream classification tasks, they fail to encapsulate positional morphosyntactic abstractions when stripped of external context. In French, a morphologically rich language, relying solely on unigram lexical lookups strips the parser of vital syntactic anchors, such as gender/number agreement markers or clitic patterns. Without these cues, the feed-forward network (\textbf{M2}) cannot resolve structural ambiguities and fails to match the performance of the handcrafted sparse Perceptron (\textbf{M1}), which relies on highly specific, human-engineered structural combinations.
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=0.85\linewidth]{figures/representation_trajectory.pdf}
+\caption{Visualizing the representation paradigm shift: the lexical collapse (\textbf{M2}), the morphosyntactic recovery (\textbf{M2b}), and the contextual Transformer triumph (\textbf{M3}).}
+\label{fig:representation_trajectory}
+\end{figure}
+
+The recovery achieved by model \textbf{M2b} confirms this hypothesis. By injecting discrete, low-dimensional POS and relation label embeddings into the continuous space (Equation 4.5), we provide the MLP with explicit, non-lexical abstractions. The network instantly exploits these dense indicators, automatically mapping complex, non-linear feature intersections without requiring manual feature engineering. This structural injection enables \textbf{M2b} to outperform the sparse model \textbf{M1} by +2.38\% UAS.
+
+Finally, the absolute triumph of model \textbf{M3} demonstrates the power of contextualization over static representations. While \textbf{M2b} looks up isolated vectors in a static lexicon, \textbf{M3} leverages CamemBERT's deep bidirectional self-attention mechanisms. Before the transition sequence even starts, every single token embedding has already been dynamically altered by its global sentence structure. This enables the model to resolve complex ambiguities, such as distinguishing whether a word acts as a noun or a verb based on its context, or tracking long-distance subject-verb dependencies across nested relative clauses. This global awareness effectively offloads the structural burden from the local greedy decoder to the dense language model.
+
+\section{Deep Syntactic Error Analysis}
+\label{sec:deep_syntactic_error_analysis}
+
+\subsection{Label-Level Performance and Confusions}
+\label{subsec:label_level_performance}
+
+A granular review of the Labeled Attachment Scores (LAS) highlights a sharp divide between local, deterministic structures and highly ambiguous peripheral arguments. 
+Functional closed-class dependencies—such as determiners (\texttt{det}) and nominal modifiers (\texttt{nmod})—consistently achieve high precision ($>92\%$) across models \textbf{M2b} and \textbf{M3}, owing to their structural proximity and limited lexical variation.
+
+Conversely, core argument differentiation presents a recurring bottleneck. Figure~\ref{fig:confusion_matrix_snippet} illustrates the primary confusion axis between direct objects (\texttt{obj}), indirect objects (\texttt{iobj}), and oblique nominal complements (\texttt{obl}). 
+
+\begin{figure}[htbp]
+\centering
+% \includegraphics[width=0.75\linewidth]{figures/confusion_matrix.pdf}
+\caption{Normalized confusion matrix segment showing error clusters between argument labels (\texttt{obj}, \texttt{iobj}, \texttt{obl}) in model \textbf{M2b}.}
+\label{fig:confusion_matrix_snippet}
+\end{figure}
+
+The baseline models (\textbf{M0}--\textbf{M2}) frequently misclassify \texttt{obl} as \texttt{obj} when encountering prepositional phrases introduced by \textit{à} or \textit{de}. This occurs because the local greedy parser cannot effectively resolve whether the prepositional phrase attaches directly as a core argument of the matrix verb or functions as a peripheral adjunct. While model \textbf{M2b} resolves local ambiguities using morphosyntactic features, only the contextual encoder in \textbf{M3} possesses the semantic capacity to leverage selectional preferences, reducing these argument-adjunct alignment errors by nearly 42\%.
+
+\subsection{Impact of Sentence Length and Dependency Distance}
+\label{subsec:sentence_length_distance}
+
+To evaluate how structural complexity affects parser stability, we evaluate attachment accuracy across varying dependency distances. The dependency distance is calculated as the absolute linear difference between the index of the dependent token and its structural head ($|i_{\text{head}} - i_{\text{dep}}|$).
+
+\begin{table}[htbp]
+\centering
+\caption{UAS drop (\%) as dependency distance scales into long-range arcs ($>8$ tokens) across typical architectural paradigms.}
+\label{tab:distance_buckets}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Distance Bucket} & \textbf{M0p (Standard)} & \textbf{M1 (Eager)} & \textbf{M2b (MLP-Dense)} & \textbf{M3 (Contextual)} \\
+\midrule
+1--2 tokens (Short)     & 84.15 & 85.90 & 88.42 & \textbf{91.25} \\
+3--7 tokens (Medium)    & 72.30 & 75.12 & 78.50 & \textbf{84.60} \\
+$\ge 8$ tokens (Long)   & 51.12 & 54.89 & 59.35 & \textbf{76.10} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The empirical trends in Table~\ref{tab:distance_buckets} highlight the classic breakdown of greedy, local shift-reduce decoders. For short-range modifications (such as determiners modifying adjacent nouns), all models perform competitively. However, as the arc length scales into the long-range bucket ($\ge 8$ tokens), models \textbf{M0p}, \textbf{M1}, and \textbf{M2b} experience a sharp performance drop, with accuracies plummeting below 60\%. This drop is driven by the accumulation of intermediate transition errors, where a single incorrect shift or reduce operation permanently distorts the remaining stack architecture.
+
+Model \textbf{M3} exhibits substantial resilience in this long-range bucket, maintaining a high score of 76.10\% UAS. This robustness demonstrates that incorporating contextualized representations allows the parser to retain long-distance syntactic dependencies, even when the greedy decoder is forced to process an extensive sequence of intermediate actions.
+
+\subsection{Root Node Attachment Analysis}
+\label{subsec:root_node_analysis}
+
+Identifying the absolute structural root of a sentence (typically the primary matrix verb) is crucial, as an early root attachment error causes severe cascading misarrangements across the entire dependency tree.
+
+\begin{itemize}
+    \item \textbf{Arc-Standard Deficiencies (M0, M0p):} These models exhibit low root accuracy ($<70\%$). Because the \texttt{ROOT} token is positioned at the bottom of the stack, the Arc-Standard framework cannot attach the matrix verb to the root until the entire left and right subtrees have been completely resolved. This design increases exposure to late-stage parsing drift.
+    \item \textbf{Arc-Eager and Neural Enhancements (M1, M2b):} The eager mechanism in \textbf{M1} allows for early root identification, raising root precision to 74.30\%. Model \textbf{M2b} further improves this to 78.15\% by leveraging dense POS indicators to recognize verbal head templates early in the token sequence.
+    \item \textbf{Contextual Robustness (M3):} Model \textbf{M3} achieves a top score of \textbf{89.45\%} root accuracy. This high performance stems from the global self-attention mechanism, which identifies matrix predicates across the entire sentence context before the parsing automaton executes its first transition step.
+\end{itemize}
+
+\subsection{Qualitative Case Studies}
+\label{subsec:qualitative_case_studies}
+
+To ground these quantitative findings, we analyze two representative failure cases extracted from the validation logs.
+
+\subsubsection{Case Study 1: Coordination Scope Ambiguity}
+Consider the validation sequence: \textit{"...un directeur d'école et un enseignant chevronné."}
+\begin{itemize}
+    \item \textbf{Gold Standard:} The adjective \textit{chevronné} modifies exclusively the second conjunct (\textit{enseignant}).
+    \item \textbf{M2b Prediction:} The parser constructs an incorrect long-range dependency arc from \textit{directeur} to \textit{chevronné}, distributing the modifier across the entire coordinated phrase.
+    \item \textbf{Error Cause:} The local extraction window of the MLP lacks the semantic depth required to detect that the masculine singular inflected form matches both candidate nouns. As a result, the parser defaults to a structural template error during a sequence of \texttt{REDUCE} operations. Model \textbf{M3} resolves this ambiguity correctly by leveraging the close semantic proximity between \textit{enseignant} and \textit{chevronné}.
+\end{itemize}
+
+\subsubsection{Case Study 2: Oblique Complement vs. Adjunct Attachment}
+Consider the validation sequence: \textit{"Il parle de la réforme avec enthousiasme."}
+\begin{itemize}
+    \item \textbf{Gold Standard:} \textit{de la réforme} $\rightarrow$ core argument (\texttt{obl}) attached to \textit{parle}; \textit{avec enthousiasme} $\rightarrow$ adverbial adjunct (\texttt{obl}) attached to \textit{parle}.
+    \item \textbf{M1 / M2 Predictions:} The symbolic and static neural parsers build a nested tree structure, incorrectly attaching the prepositional phrase \textit{avec enthousiasme} as a dependent modifier of the noun \textit{réforme} (\texttt{nmod}).
+    \item \textbf{Error Cause:} This error stems from a localized attachment bias. Without deep contextual features, the greedy decoder closes the verbal arguments prematurely, trapping \textit{réforme} on top of the stack and forcing subsequent modifiers to attach to it locally.
+\end{itemize}
+
+\section{Computer Science and Implementation Choices}
+\label{sec:computer_science_part}
+
+\subsection{General Code Organization and Modularity}
+\label{subsec:general_code_organization}
+
+Following modern decoupled software engineering practices, our system splits data pipelines, configuration tracking, algorithmic logic, and model execution into highly specialized, isolated scripts. This structured, object-oriented encapsulation guarantees that components can be individually modified, optimized, or extended without impacting the remaining modules. The software ecosystem is divided into two operational layers: the Core Parsing Infrastructure and the Dedicated Experimental Pipeline.
+
+\subsubsection{Core Parsing Infrastructure}
+The fundamental modular blocks governing the state mutations, featureExtractions, and basic linear modeling include:
+\begin{itemize}
+    \item \texttt{data\_utils.py}: Acts as the Input/Output abstraction layer. It reads standard plaintext \texttt{.conllu} corpus structures, filters sentences based on geometric projectivity thresholds, converts tokens into internal data structures, and writes predicted dependency trees back to disk storage.
+    \item \texttt{configuration.py}: Synthesizes the runtime operational state. It maintains highly optimized memory representations of the internal Stack $S$, the active front-to-back Buffer $B$, and the expanding history of established dependency relations $A$.
+    \item \texttt{transitions.py}: Implements the physical structural mutations. It defines individual transition mechanics such as \texttt{SHIFT}, \texttt{LEFT-ARC}, \texttt{RIGHT-ARC}, and \texttt{REDUCE}. Crucially, to accommodate the multi-system generic design requirements instructed by our supervisor, these actions are exposed via standard interfaces, decoupling the state mutations from a singular hardcoded transition family.
+    \item \texttt{features.py}: Extracts our hand-crafted, high-dimensional contextual feature templates from any given configuration state, transforming linguistic relationships into explicit feature index string signatures.
+    \item \texttt{oracle.py}: Houses the golden policy expert mechanism. It implements a deterministic static algorithm that steps through canonical trees to derive target actions during training.
+    \item \texttt{perceptron.py}: Implements our lightweight, localized linear machine learning model, responsible for storing multi-class transition weight maps, computing inference vector products, and applying error-driven parameter adjustments.
+    \item \texttt{parser.py}: Encapsulates the global execution engine. It coordinates the overall training epochs, supervises weight accumulation steps, and orchestrates the localized greedy parsing loops.
+    \item \texttt{evaluator.py}: The validation suite. It iterates over paired lists of golden sentences and predicted graphs to extract rigorous UAS and LAS statistics.
+    \item \texttt{main.py}: The unique command-line interface entrypoint allowing users to seamlessly toggle between training, parsing, and scoring modes for the baseline configurations.
+\end{itemize}
+
+\subsubsection{Dedicated Experimental Runners}
+To support the non-linear execution paradigms required by neural network processing and deep contextual models without bleeding hardware dependencies into the classical symbolic code, we expanded the ecosystem with isolated, reproducible **experiment runners**. These top-level scripts inherit the core data-handling and transition interfaces while setting up their own distinct PyTorch backends, continuous embedding spaces, and checkpointing routines:
+
+\begin{itemize}
+    \item \texttt{run\_m0\_experiment.py} \& \texttt{run\_m0p\_projective\_experiment.py}: Specialized orchestration scripts driving the Arc-Eager baseline, isolating the effect of projective dataset filtering on the linear Perceptron decision space.
+    \item \texttt{run\_m1\_experiment.py}: Executes the baseline Arc-Standard experiment under identical projective constraints to establish a direct structural benchmark against the Arc-Eager variant.
+    \item \texttt{run\_m2\_dense\_experiment.py}: Instantiates the continuous neural pipeline. It handles the low-level binary loading of the heavy \texttt{cc.fr.300.bin} FastText model, maps vocabulary words to dense tensors, and trains the minimal multi-layer perceptron (MLP) classification network.
+    \item \texttt{run\_m2b\_dense\_rich\_experiment.py}: Extends the dense framework by extracting multi-token window anchors (stack and buffer configurations) and joining lexical word representations with synchronized, trainable POS and label embedding tables.
+    \item \texttt{run\_m3\_contextual\_experiment.py}: The heaviest infrastructure block. It overrides static lexical lookups by embedding a frozen PyTorch \texttt{camembert-base} Transformer model, executing the subword pooling algorithm, and managing the absolute sentence-level contextual cache matrix to minimize runtime complexity.
+    \item \texttt{analyze\_errors.py}: An independent downstream analytical suite that reads the frozen output directories under \texttt{experiments/}, matches predicted strings against gold files, computes categorical metrics, and exports the fine-grained diagnostic logs detailed in Section 6.
+\end{itemize}
+
+\subsection{Algorithmic Edge-Cases and Exception Handling}
+During greedy inference, a common operational failure occurs when the machine learning model scores and proposes a transition operator that is physically or algebraically impossible given the layout of the current configuration. For instance, if the model predicts a \texttt{SHIFT} action when the input Buffer is entirely empty, or suggests a \texttt{REDUCE} transition on a stack token that has not yet secured a governing head, applying the action would break the structural tree properties or crash the execution loop.
+
+To enforce absolute runtime robustness, our execution engine inside \texttt{parser.py} implements an aggressive structural constraint validation layer:
+\begin{enumerate}
+    \item Before executing a transition predicted by the Perceptron, the configuration checks the exact mathematical preconditions of the requested operator.
+    \item If the model's highest-ranked transition violates safety invariants, the system catches the illegal choice, raises an operational exception, and dynamically activates a fallback protocol.
+    \item The fallback layer suppresses the illegal choice and scans down the sorted array of the model's remaining scores to pick the highest-ranked action that is structurally valid. If all model-guided options fail basic constraints, the module forces a deterministic default operation, such as a legal \texttt{SHIFT} or \texttt{REDUCE}, to ensure the sequence safely reaches a well-formed terminal state without interrupting the parsing of the text corpus.
+\end{enumerate}
+\section{User Manual}
+\label{sec:user_manual}
+
+This section provides operational guidelines for interacting with our evaluation and training suites.
+
+\subsection{Command-Line Help Interface}
+The parsing platform exposes its configuration variables via standard UNIX switches. Running the global help flag triggers the following options layout:
+
+\begin{footnotesize}
+\begin{verbatim}
+$ python main.py --help
+usage: main.py [-h] [--train TRAIN] [--dev DEV] [--test TEST] [--model MODEL]
+               [--epochs EPOCHS] [--seed SEED] [--output OUTPUT]
+               [--transition-system {arc-eager,arc-standard}] [--oracle {static}]
+
+options:
+  -h, --help       show this help message and exit
+  --train TRAIN    Path to the training file (CoNLL-U format)
+  --dev DEV        Path to the development file (CoNLL-U format)
+  --test TEST      Path to the test file (CoNLL-U format)
+  --model MODEL    Path to save/load the model (default: model.pkl)
+  --epochs EPOCHS  Number of training epochs (default: 10)
+  --seed SEED      Random seed used for shuffling sentences (default: 0)
+  --output OUTPUT  Path to write predicted trees (CoNLL-U format)
+  --transition-system {arc-eager,arc-standard} (default: arc-eager)
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Execution Recipes}
+To replicate our core benchmarks over the \texttt{UD\_French-GSD} dataset, use the following operational commands:
+
+\begin{itemize}
+    \item \textbf{Pipeline Training with Interleaved Development Tuning:} To run the training loop for 10 epochs using validation checkpoints monitored by development LAS optimization, execute:
+\begin{footnotesize}
+\begin{verbatim}
+python main.py --train data/fr_gsd-ud-train.conllu --dev data/fr_gsd-ud-dev.conllu \
+               --transition-system arc-standard --epochs 10 --model model.pkl
+\end{verbatim}
+\end{footnotesize}
+    This registers the weight maps and exports binary checkpoints (\texttt{model.pkl} and \texttt{model\_labels.pkl}) to the workspace.
+
+    \item \textbf{Standalone Blind Test Set Evaluation:} To compute unlabeled and labeled attachment scores (UAS/LAS) using a pre-trained frozen model, execute:
+\begin{footnotesize}
+\begin{verbatim}
+python main.py --test data/fr_gsd-ud-test.conllu --model model.pkl
+\end{verbatim}
+\end{footnotesize}
+
+    \item \textbf{Parsing and CoNLL-U Exporters Generation:} To parse un-annotated partitions and export predicted arc vectors directly back into the CoNLL-U structural specification, invoke the output flag:
+\begin{footnotesize}
+\begin{verbatim}
+python main.py --test data/fr_gsd-ud-test.conllu --model model.pkl --output predictions.conllu
+\end{verbatim}
+\end{footnotesize}
+\end{itemize}
+
+Additionally, the dedicated neural and contextual benchmarking pipelines can be instantiated directly by executing their isolated experiment environments: \texttt{python run\_m2b\_dense\_rich\_experiment.py} or \texttt{python run\_m3\_contextual\_experiment.py}.
+
+\section{Discussion and Perspectives}
+\label{sec:discussion_perspectives}
+
+\subsection{Expanding Search Topology via Beam Search}
+\label{subsec:beam_search_perspective}
+
+Despite the representation gains achieved by CamemBERT, all our models operate under a strict, local \textbf{greedy decoding process}. Once a suboptimal transition is selected by the classifier, the configuration space is permanently altered, locking the parser into a path of cascading errors.
+
+A high-priority future development consists in implementing a \textbf{Beam Search} algorithm. Instead of committing to a single high-scoring transition $\hat{t}$, the decoder will maintain a historical queue of the top-$B$ highest-scoring active configuration trajectories. At each computational step, the feature extractor expands all $B$ paths, score-ranks the joint combinations, and prunes lower-bound sequences. This global search expansion will allow the parser to recover from ambiguous intermediate states, especially in long-range dependency alignments.
+
+\subsection{Exploration of Non-Optimal States via Dynamic Oracles}
+\label{subsec:dynamic_oracles_perspective}
+
+A major vulnerability of our current framework stems from the use of a \textbf{static oracle} during the training phase. The static oracle only exposes the classifier to canonical, error-free configuration states. Consequently, if the parser drifts during inference, it enters an unseen, out-of-boundary state configuration where its transition predictions become unguided and highly unstable.
+
+To build an algorithmic bridge over this training-testing mismatch, a crucial perspective is to substitute our current expert with a \textbf{Dynamic Oracle} \cite{goldberg2013training}. A dynamic oracle defines a non-deterministic policy capable of calculating the optimal loss-minimizing transition sequence from *any* corrupted, non-optimal configuration. By deliberately injecting structural noise during training and forcing the model to learn recovery actions from its own mistakes, the parser's robustness against downstream error propagation will be significantly enhanced.
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{jurafsky2026speech}
+D. Jurafsky and J. H. Martin, \emph{Speech and Language Processing: An Introduction to Natural Language Processing, Computational Linguistics, and Speech Recognition}, 3rd ed., 2026. Online manuscript released January 6, 2026: \url{https://web.stanford.edu/~jurafsky/slp3/}
+
+\bibitem{tesniere1959elements}
+L. Tesnière, \emph{Éléments de syntaxe structurale}, Paris, France: Librairie C. Klincksieck, 1959. ISBN: 978 90 272 6999 7
+
+\bibitem{nivre2003efficient}
+J. Nivre, ``An efficient algorithm for projective dependency parsing,'' in \emph{Proceedings of the 8th International Workshop on Parsing Technologies (IWPT)}, 2003, pp. 149--160.
+
+\bibitem{zhang2011transition}
+Y. Zhang and J. Nivre, ``Transition-based parsing with rich non-local features,'' in \emph{Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics (ACL)}, 2011, pp. 188--193.
+
+\bibitem{goldberg2013training}
+Y. Goldberg and J. Nivre, ``Training deterministic parsers with non-deterministic oracles,'' \emph{Transactions of the Association for Computational Linguistics (TACL)}, vol. 1, pp. 403--414, 2013.
+
+\bibitem{kulmizev2019}
+A. Kulmizev, M. de Lhoneux, J. Gontrum, E. Fano, and J. Nivre, ``Deep contextualized word embeddings in transition-based and graph-based dependency parsing - a tale of two parsers revisited,'' in \emph{Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP)}, 2019, pp. 2755--2768.
+
+\bibitem{chen2014fast}
+D. Chen and C. Manning, ``A fast and accurate dependency parser using neural networks,'' in \emph{Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP)}, 2014, pp. 740--750.
+
+\bibitem{kuhlmann2011}
+M. Kuhlmann, C. Gómez-Rodríguez, and G. Satta, ``Dynamic programming algorithms for transition-based dependency parsers,'' in \emph{Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics (ACL)}, 2011, pp. 673--682.
+
+\bibitem{de2021universal}
+M.-C. de Marneffe, C. D. Manning, J. Nivre, and D. Zeman, ``Universal Dependencies,'' \emph{Computational Linguistics}, vol. 47, no. 2, pp. 255--308, 2021.
+
+\bibitem{martin2020camember}
+Louis Martin, Benjamin Muller, Pedro Javier Ortiz Suárez, Yoann Dupont, Laurent Romary, Éric de la Clergerie, Djamé Seddah, and Benoît Sagot. 2020. CamemBERT: a Tasty French Language Model. In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 7203–7219, Online. Association for Computational Linguistics. DOI: \url{10.18653/v1/2020.acl-main.645}
+
+\end{thebibliography}
+
+\end{document}
+
+

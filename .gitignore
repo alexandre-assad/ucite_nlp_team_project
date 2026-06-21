@@ -2,6 +2,8 @@ __pycache__/
 tests/__pycache__/
 *.pyc
 
+.ipynb_checkpoints/
+
 data/embeddings/*.bin
 !data/embeddings/README.md
 
